@@ -17,7 +17,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'  # укажите нужную версию Python
+          python-version: '3.9'
 
       - name: Install dependencies
         run: |
@@ -26,12 +26,10 @@ jobs:
 
       - name: Build executable with PyInstaller
         run: |
-          # --onefile собирает в один исполняемый файл
-          # --add-data добавляет папку templates в сборку, синтаксис: "исходный_путь:целевой_путь"
           pyinstaller --onefile --add-data "templates:templates" main.py
 
       - name: Upload executable artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3.0.1
         with:
           name: flask-app-executable
-          path: dist/main  # путь к собранному файлу
+          path: dist/main
