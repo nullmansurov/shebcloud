@@ -2,34 +2,33 @@ name: Build Executable
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches:
+      - main # Измените на вашу основную ветку, если необходимо
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v2
         with:
-          python-version: '3.9'
+          python-version: 3.8 # Или другая версия Python
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install Flask Flask-Login Flask-SQLAlchemy Flask-WTF WTForms google-generativeai sortedcontainers pytelegrambotapi pyinstaller
 
-      - name: Build executable with PyInstaller
+      - name: Build executable
         run: |
           pyinstaller --onefile --add-data "templates:templates" main.py
 
-      - name: Upload executable artifact
-        uses: actions/upload-artifact@6f047e81caa8f2472ed2560d0033b645ac9686a7
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
         with:
-          name: flask-app-executable
+          name: executable
           path: dist/main
