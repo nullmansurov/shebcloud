@@ -1,0 +1,37 @@
+name: Build Executable
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'  # укажите нужную версию Python
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install Flask Flask-Login Flask-SQLAlchemy Flask-WTF WTForms google-generativeai sortedcontainers pytelegrambotapi pyinstaller
+
+      - name: Build executable with PyInstaller
+        run: |
+          # --onefile собирает в один исполняемый файл
+          # --add-data добавляет папку templates в сборку, синтаксис: "исходный_путь:целевой_путь"
+          pyinstaller --onefile --add-data "templates:templates" main.py
+
+      - name: Upload executable artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: flask-app-executable
+          path: dist/main  # путь к собранному файлу
