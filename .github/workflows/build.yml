@@ -3,7 +3,7 @@ name: Build Executable
 on:
   push:
     branches:
-      - main # Измените на вашу основную ветку, если необходимо
+      - main
 
 jobs:
   build:
@@ -16,7 +16,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8 # Или другая версия Python
+          python-version: 3.8
 
       - name: Install dependencies
         run: |
@@ -28,7 +28,7 @@ jobs:
           pyinstaller --onefile --add-data "templates:templates" main.py
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4 # Изменено на v4
         with:
           name: executable
           path: dist/main
