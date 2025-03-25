@@ -31,7 +31,7 @@ jobs:
           pyinstaller --onefile --add-data "templates:templates" main.py
 
       - name: Upload executable artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: flask-app-executable
           path: dist/main  # путь к собранному файлу
