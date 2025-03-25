@@ -1,0 +1,21 @@
+{% set printed = namespace(ids=[]) %}
+{% for chat in chats %}
+  {% if chat.chat_id not in printed.ids %}
+    <li class="list-group-item" id="chat-{{ chat.chat_id }}">
+      <a href="{{ url_for('telegram_interface', chat_id=chat.chat_id) }}">
+        {% if chat.group_name %}
+          {{ chat.group_name }} (Группа)
+        {% else %}
+          {{ chat.first_name or chat.chat_id }}
+          {% if chat.username %}
+            ({{ chat.username }})
+          {% endif %}
+        {% endif %}
+        {% if chat.unread_count is defined and chat.unread_count > 0 %}
+          <span class="badge badge-danger" style="font-size: 1.2em; margin-left: 5px;">●</span>
+        {% endif %}
+      </a>
+    </li>
+    {% set printed.ids = printed.ids + [chat.chat_id] %}
+  {% endif %}
+{% endfor %}

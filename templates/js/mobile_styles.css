@@ -1,0 +1,117 @@
+/* Основные стили для мобильной версии */
+@media (max-width: 768px) {
+  
+  /* Шапка */
+  #header {
+    background: #007bff;
+    color: #fff;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+  }
+
+  /* Кнопка "Проекты" */
+  #toggle-projects {
+    font-size: 12px;
+    margin-left: 4px;
+  }
+
+  /* Панель инструментов для мобильных устройств */
+  #toolbar {
+    background: #f1f1f1;
+    border-bottom: 1px solid #ccc;
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 55px;
+  }
+  .container-fluid {
+    padding-top: 10px;
+}
+
+  #toolbar button,
+  #toolbar select,
+  #toolbar input[type="color"] {
+    margin: 2px;
+  }
+
+  /* Панель проектов */
+  #projects-list {
+    display: none; /* Скрыта по умолчанию */
+    position: fixed;
+    top: 50px;
+    left: 0;
+    width: 80%;
+    height: calc(100vh - 50px);
+    z-index: 1000;
+    background: #fff;
+    border-right: 1px solid #ccc;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    overflow-y: auto;
+    transition: left 0.3s ease;
+  }
+
+  #projects-list.open {
+    display: block; /* Панель открыта */
+    left: 0;
+  }
+
+  /* Уменьшаем шрифт заголовков на мобильных */
+  #main-header {
+    font-size: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  /* Стили для проектов */
+  .project-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    cursor: pointer;
+    padding: 5px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .project-item.selected {
+    background: #e2e6ea;
+  }
+
+  /* Кнопка для скрытия панели инструментов */
+  #toggle-toolbar-mobile {
+    display: block;
+    font-size: 14px;
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+  }
+
+  /* Кнопка на панели, чтобы вернуть её */
+  #toggle-toolbar-mobile.show {
+    display: none;
+  }
+
+  /* Кнопка отображается на мобильных устройствах */
+  #toggle-toolbar-mobile.show-toolbar {
+    display: block;
+  }
+}

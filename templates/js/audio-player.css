@@ -1,0 +1,196 @@
+/* Стили для кастомного аудиоплеера */
+.custom-audio-player {
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    padding: 15px 20px;        /* Увеличенные отступы для плеера */
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 15px;                 /* Увеличенный промежуток между элементами */
+    user-select: none;
+    width: 80%;                /* Ширина плеера – 80% от родительского контейнера */
+    margin: 0 auto;            /* Центрирование плеера по горизонтали */
+}
+
+/* Стили для кнопок плеера */
+.custom-audio-player button {
+    background-color: #2980b9;
+    color: white;
+    border: none;
+    padding: 6px 12px;         /* Увеличенные отступы кнопок */
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 14px;           /* Увеличенный размер шрифта */
+    outline: none;             /* Убираем стандартную обводку */
+}
+
+/* Убираем обводку при фокусе и активном состоянии */
+.custom-audio-player button:focus,
+.custom-audio-player button:active {
+    outline: none;
+}
+
+/* Стили для прогресс-бара */
+.progress-container {
+    flex-grow: 1;
+    margin: 0 15px;            /* Увеличенный отступ для прогресс-бара */
+    position: relative;
+    height: 8px;               /* Увеличенная высота прогресс-бара */
+    background-color: #bdc3c7;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: #2980b9;
+    width: 0;
+}
+
+/* Стили для времени */
+.time {
+    font-size: 14px;           /* Увеличенный размер шрифта времени */
+    color: #ecf0f1;
+}
+
+/* Стили для плавающего блока управления аудио (расположен в нижней части экрана) */
+.floating-audio-controls {
+  position: fixed;
+  bottom: 20px; /* Располагаем блок внизу экрана */
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1E1E1E;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Стили кнопок в плавающем блоке */
+.floating-audio-controls button {
+  background: #2D2D2D;
+  border: none;
+  color: #fff;
+  padding: 0.5rem 0.9rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+.floating-audio-controls button:hover {
+  background: #7C90DB;
+}
+
+/* Прогресс-бар внутри плавающего блока */
+.fab-progress-container {
+  position: relative;
+  flex: 1;
+  height: 8px;
+  background: #444;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.fab-progress-bar {
+  height: 100%;
+  background: #7C90DB;
+  width: 0%;
+}
+
+/* Стили для отображения времени (текущего и длительности) */
+.fab-time {
+  font-size: 12px;
+  color: #e0e0e0;
+}
+
+
+/* Стили для кастомного аудиоплеера для мобильных устройств */
+@media (max-width: 768px) {
+    .custom-audio-player {
+        width: 95%;                 /* Ширина плеера – 95% от родительского контейнера */
+        padding: 10px;              /* Уменьшаем отступы */
+        gap: 10px;                  /* Уменьшаем промежуток между элементами */
+    }
+
+    .custom-audio-player button {
+        padding: 4px 8px;           /* Уменьшаем отступы кнопок */
+        font-size: 12px;            /* Уменьшаем размер шрифта */
+    }
+
+    .progress-container {
+        height: 6px;                /* Уменьшаем высоту прогресс-бара */
+        margin: 0 10px;             /* Уменьшаем отступ для прогресс-бара */
+    }
+
+    .time {
+        font-size: 12px;            /* Уменьшаем размер шрифта времени */
+    }
+
+    /* Стили для плавающего блока управления аудио */
+    .floating-audio-controls {
+        bottom: 10px;               /* Уменьшаем отступ от нижней части экрана */
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 0.5rem;            /* Уменьшаем отступы внутри блока */
+    }
+
+    /* Стили кнопок в плавающем блоке */
+    .floating-audio-controls button {
+        padding: 0.4rem 0.7rem;     /* Уменьшаем отступы кнопок */
+        font-size: 12px;            /* Уменьшаем размер шрифта кнопок */
+    }
+
+    .fab-progress-container {
+        height: 6px;                /* Уменьшаем высоту прогресс-бара */
+    }
+
+    .fab-time {
+        font-size: 10px;            /* Уменьшаем размер шрифта времени */
+    }
+}
+
+/* Дополнительные настройки для очень маленьких экранов (например, телефоны с узким экраном) */
+@media (max-width: 480px) {
+    .custom-audio-player {
+        width: 100%;                /* Ширина плеера – 100% */
+        padding: 8px;               /* Минимальные отступы */
+        gap: 8px;                   /* Уменьшаем промежуток между элементами */
+    }
+
+    .custom-audio-player button {
+        padding: 4px 6px;           /* Минимальные отступы кнопок */
+        font-size: 10px;            /* Минимальный размер шрифта */
+    }
+
+    .progress-container {
+        height: 5px;                /* Минимальная высота прогресс-бара */
+        margin: 0 5px;              /* Уменьшаем отступ для прогресс-бара */
+    }
+
+    .time {
+        font-size: 10px;            /* Минимальный размер шрифта времени */
+    }
+
+    /* Стили для плавающего блока управления аудио */
+    .floating-audio-controls {
+        bottom: 5px;                /* Минимальный отступ от нижней части экрана */
+        padding: 0.4rem;            /* Минимальные отступы внутри блока */
+    }
+
+    /* Стили кнопок в плавающем блоке */
+    .floating-audio-controls button {
+        padding: 0.3rem 0.6rem;     /* Минимальные отступы кнопок */
+        font-size: 10px;            /* Минимальный размер шрифта кнопок */
+    }
+
+    .fab-progress-container {
+        height: 5px;                /* Минимальная высота прогресс-бара */
+    }
+
+    .fab-time {
+        font-size: 8px;             /* Минимальный размер шрифта времени */
+    }
+}

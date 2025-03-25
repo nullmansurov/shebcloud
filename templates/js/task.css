@@ -1,0 +1,388 @@
+/* task.css */
+
+/* Контейнер списка задач с отступом для таймлайна */
+.task-list {
+  position: relative;
+  padding-left: 60px; /* отводим место для линии и точек */
+  margin: 20px 0;
+  background: transparent;
+}
+
+/* Единая вертикальная линия, проходящая через все задачи */
+.task-list::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 30px; /* линия проходит по центру точки */
+  width: 2px;
+  background: #ccc; /* цвет по умолчанию (для pending) */
+  z-index: 1;
+}
+
+/* Каждый элемент задачи */
+.task {
+  position: relative;
+  margin-bottom: 10px;
+  padding: 10px;
+  max-width: 90%;
+  background: #fff;
+  border-radius: 4px;
+  transition: opacity 0.3s ease;
+}
+
+/* Если хотя бы одна задача провалена – остальные становятся тусклее */
+.task-list.has-failed .task:not(.failed) {
+  opacity: 0.6;
+}
+
+/* Выделение проваленной задачи */
+.task.failed {
+  border: 1px solid #dc3545;
+  box-shadow: 0 0 5px rgba(220,53,69,0.5);
+}
+
+/* Точка таймлайна – увеличена до 24px, всегда поверх линии */
+.task-dot {
+  position: absolute;
+  left: -42px; /* вычислено: 30 - 60 - (24/2) = -42 */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ffc107; /* по умолчанию для pending */
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease;
+}
+
+/* Подпись состояния над точкой */
+.dot-state-label {
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  background: #fff;
+  padding: 2px 4px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* Стили для деталей задачи */
+.task-details {
+  transform-origin: left center;
+  transition: transform 0.3s ease;
+}
+
+/* При состоянии "in-progress" масштабируем только блок с деталями */
+.task.in-progress > .task-details {
+  transform: scale(1.05);
+}
+
+/* Контейнер названия задачи */
+.task-title-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  flex-wrap: wrap;  /* Устанавливаем wrap для адаптивности */
+  justify-content: space-between;  /* Разделяем элементы */
+}
+
+/* Поле ввода названия задачи */
+.task-title-input {
+  font-size: 16px;
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  transition: border-color 0.3s ease;
+  flex-grow: 1;  /* Задаём поле ввода на всю ширину */
+  margin-right: 10px;  /* Отступ справа, чтобы кнопки не сливались */
+}
+
+.task-title-input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+/* Кнопка сохранения названия */
+.task-save-title {
+  margin-left: 5px;
+  padding: 4px 8px;
+  font-size: 14px;
+  border: 1px solid #007bff;
+  border-radius: 4px;
+  background: #007bff;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  flex-shrink: 0;
+}
+
+.task-save-title:hover {
+  background: #0056b3;
+}
+
+/* Статичный заголовок задачи */
+.task-title-static {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-right: 10px;
+  white-space: normal;
+}
+
+/* Панель действий (select и кнопка удаления) */
+.task-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;  /* Устанавливаем wrap для адаптивности */
+  gap: 5px;  /* Уменьшаем отступы между кнопками */
+}
+
+/* Панель действий: кнопки и select */
+.task-actions select,
+.task-actions button {
+  margin-left: 5px;
+  padding: 5px 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.task-actions select:focus,
+.task-actions button:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.task-actions button:hover {
+  background: #e2e6ea;
+}
+
+/* Стили для различных состояний задачи – изменяем цвет точки */
+.task.pending .task-dot {
+  background: #ffc107;
+}
+.task.in-progress .task-dot {
+  background: #ccc;
+}
+.task.completed .task-dot {
+  background: #28a745;
+}
+.task.failed .task-dot {
+  background: #dc3545;
+}
+.task.cancelled .task-dot {
+  background: #6c757d;
+}
+
+/* Основной контейнер UI трекера */
+.tracker-ui {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 4px;
+  background: #f8f9fa;
+}
+
+/* Поле поиска трекера */
+.tracker-ui .tracker-search {
+  width: 80%;
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.tracker-ui .tracker-search:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+/* Контейнер для отображения результатов поиска */
+.tracker-ui .tracker-results {
+  margin-top: 5px;
+  max-height: 150px;
+  overflow-y: auto;
+  border-top: 1px solid #eee;
+  padding-top: 5px;
+}
+
+/* Элементы результата поиска (пользователи) */
+.tracker-ui .tracker-result-item {
+  display: inline-block;
+  padding: 4px 8px;
+  margin: 2px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.tracker-ui .tracker-result-item:hover {
+  background: #e2e6ea;
+}
+
+/* Контейнер для выбранных трекеров */
+.tracker-ui .selected-trackers {
+  margin-top: 5px;
+}
+
+/* Элемент выбранного трекера (отображается жирным) */
+.tracker-ui .tracker-selected-item {
+  display: inline-block;
+  margin: 2px;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 14px;
+  font-weight: bold;
+  background: #e0e0e0;
+  cursor: pointer;
+}
+
+/* Кнопки сохранения и отмены в UI трекера */
+.tracker-ui button.tracker-save,
+.tracker-ui button.tracker-cancel {
+  margin-top: 5px;
+  padding: 4px 8px;
+  font-size: 14px;
+  border: 1px solid #007bff;
+  border-radius: 4px;
+  background: #007bff;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-right: 5px;
+}
+
+.tracker-ui button.tracker-cancel {
+  border: 1px solid #6c757d;
+  background: #6c757d;
+}
+
+.tracker-ui button.tracker-save:hover {
+  background: #0056b3;
+}
+
+.tracker-ui button.tracker-cancel:hover {
+  background: #5a6268;
+}
+
+/* Кнопка "Добавить трекер" для задачи */
+.task-add-tracker {
+  margin-left: 5px;
+  padding: 4px 8px;
+  font-size: 14px;
+  border: 1px solid #28a745;
+  border-radius: 4px;
+  background: #28a745;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.3s ease, border 0.3s ease;
+}
+
+.task-add-tracker:hover {
+  background: #218838;
+  border-color: #1e7e34;
+}
+
+/* ----------------------------------------------
+   Адаптация под мобильные устройства (например, экраны до 600px)
+---------------------------------------------- */
+@media (max-width: 600px) {
+
+    /* Кнопка сохранения названия */
+  .task-save-title {
+    margin-top: 5px;
+  }
+
+  /* Уменьшаем отступы для таймлайна */
+  .task-list {
+    padding-left: 20px;
+    margin: 10px 0;
+  }
+
+  /* Смещаем линию таймлайна ближе */
+  .task-list::before {
+    left: 10px;
+  }
+
+  /* Пересчитываем позицию точки */
+  .task-dot {
+    left: -17px;
+  }
+
+  /* Увеличиваем доступное пространство для самих задач */
+  .task {
+    max-width: 100%;
+    margin-bottom: 15px;
+  }
+
+  .task-title-static {
+    margin: auto;
+    width: 80%;
+    white-space: normal;
+  }
+
+  /* Изменяем размер кнопок и элементов для мобильных */
+  .task-actions select,
+  .task-actions button {
+    font-size: 12px;
+    padding: 4px 6px;
+  }
+
+  /* Делаем поле поиска на всю ширину */
+  .tracker-ui .tracker-search {
+    width: 100%;
+  }
+  
+  /* Кнопки сохраняются внутри экрана, используют flexbox для расположения */
+  .task-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: flex-start;
+  }
+
+  .task-title-container {
+    flex-wrap: wrap; /* Устанавливаем wrap для адаптивности */
+  }
+
+  .task-title-input {
+    font-size: 14px;
+    padding: 5px;
+    flex-grow: 1;
+    max-width: 80%;
+    margin: auto;
+  }
+
+  .task-save-title {
+    flex-shrink: 0;
+    margin-top: 5px;  /* Маленький отступ сверху */
+  }
+
+  .task-add-tracker {
+    margin-top: 5px;
+  }
+
+  .tracker-ui .tracker-result-item {
+    font-size: 12px;
+    padding: 4px;
+  }
+
+  .tracker-ui .tracker-selected-item {
+    font-size: 12px;
+    padding: 4px;
+  }
+}

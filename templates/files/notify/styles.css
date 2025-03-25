@@ -1,0 +1,87 @@
+/* Стиль контейнера модального окна */
+.unique-tele-message-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  display: none; /* Скрыть по умолчанию */
+  max-width: 500px;
+  width: 100%;
+}
+
+/* Стиль для заголовка */
+.unique-tele-message-header {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+/* Стиль для формы */
+.unique-tele-message-form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Стиль для групп элементов формы */
+.form-group {
+  margin-bottom: 15px;
+}
+
+/* Стиль для полей ввода и текстовых областей */
+.unique-tele-message-textarea,
+.unique-tele-recipient-search {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  width: 100%;
+}
+
+/* Стиль для контейнера результатов поиска */
+.unique-tele-recipient-results {
+  margin-top: 10px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Стиль для кнопок */
+.unique-tele-messages-button,
+.unique-tele-close-button {
+  padding: 10px 15px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+.unique-tele-messages-button {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.unique-tele-close-button {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+/* Стиль для добавленных получателей */
+.unique-tele-selected-recipients {
+  margin-top: 10px;
+}
+
+/* Стиль для тегов получателей */
+.unique-tele-selected-recipients span {
+  display: inline-block;
+  padding: 5px 10px;
+  margin: 5px;
+  background-color: #e9ecef;
+  border-radius: 15px;
+  cursor: pointer;
+}

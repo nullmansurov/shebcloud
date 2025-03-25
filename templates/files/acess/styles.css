@@ -1,0 +1,32 @@
+/* access.css */
+
+/* Общие стили для модального окна */
+.modal-content {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.modal-header {
+    background-color: #007bff;
+    color: white;
+}
+
+.modal-footer {
+    text-align: right;
+}
+
+.modal-footer button {
+    margin-left: 10px;
+}
+
+.modal-body a {
+    word-wrap: break-word;
+}
+
+.modal-body .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.modal-body label {
+    font-weight: bold;
+}

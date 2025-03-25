@@ -1,0 +1,42 @@
+/* Контейнер файла оформлен как inline-flex,
+   чтобы он располагался в строке вместе с текстом */
+.file-container {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  margin: 0 4px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  vertical-align: middle; /* гарантирует выравнивание с текстом */
+}
+
+/* Иконка файла */
+.file-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+}
+
+/* Название файла */
+.file-name {
+  font-size: 14px;
+  color: #333;
+  margin-right: 8px;
+}
+
+/* Кнопка "Открыть" */
+.open-file-btn {
+  font-size: 12px;
+  padding: 2px 6px;
+  border: none;
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.open-file-btn:hover {
+  background-color: #0056b3;
+}

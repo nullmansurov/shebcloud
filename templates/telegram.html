@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telegram Chat</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+  <!-- Подключаем внешний файл стилей -->
+  <link rel="stylesheet" href="files/telegram/styles.css">
+  <link rel="icon" type="image/png" href="js/icon.png">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap">
+  <style>
+    /* Дополнительный стиль для контейнера кнопки "Загрузить ещё" */
+    #loadMoreContainer {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: #f7f7f7; /* Цвет фона, чтобы при прокрутке не было эффекта мерцания */
+      padding: 5px 0;
+    }
+  </style>
+</head>
+<body>
+<div class="container-fluid p-0">
+  <div class="chat-container">
+    <!-- Чат-лист -->
+    <div class="chat-list">
+      <h3>Список чатов</h3>
+      <form method="get" action="{{ url_for('telegram_interface') }}">
+        <input type="text" name="search" placeholder="Поиск по чату" value="{{ request.args.get('search', '') }}">
+        <button type="submit" class="btn btn-secondary btn-sm">Поиск</button>
+      </form>
+      <!-- Навигационная панель -->
+      <div class="nav-panel">
+        <button class="nav-btn" onclick="window.location.href='/library'">Библиотека</button>
+        <button class="nav-btn" onclick="window.location.href='/set_token'">Сменить токен</button>
+        <button class="nav-btn" onclick="window.location.href='/broadcast'">Рассылка</button>
+        <button class="nav-btn" onclick="window.location.href='/telegram_scripts'">Скрипты</button>
+      </div>
+      <br/>
+      <ul class="list-group" id="chatList">
+        {% for chat in chats %}
+          <li class="list-group-item" id="chat-{{ chat.chat_id }}">
+            <a href="{{ url_for('telegram_interface', chat_id=chat.chat_id) }}">
+              {% if chat.group_name %}
+                {{ chat.group_name }} (Группа)
+              {% else %}
+                {{ chat.first_name or chat.chat_id }}
+                {% if chat.username %}
+                  ({{ chat.username }})
+                {% endif %}
+              {% endif %}
+              {% if chat.unread_count > 0 %}
+                <span class="badge badge-danger" style="font-size: 1.2em; margin-left: 5px;">●</span>
+              {% endif %}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+      <div class="text-center mt-2">
+        <button id="loadMoreChats" class="btn btn-secondary btn-sm">Еще</button>
+      </div>
+    </div>
+
+    <!-- Чат с сообщениями -->
+    <div class="chat-messages">
+      <div class="chat-header">
+        <h3>
+          {% if current_chat.group_name %}
+            {{ current_chat.group_name }}
+          {% elif current_chat.first_name %}
+            {{ current_chat.first_name }}
+            {% if current_chat.username %}
+              ({{ current_chat.username }})
+            {% endif %}
+          {% else %}
+            Выберите чат {{ current_chat.chat_id }}
+          {% endif %}
+        </h3>
+      </div>   
+      <!-- Контейнер для кнопки "Загрузить ещё" -->
+      <div id="loadMoreContainer" class="text-center" style="display: none;">
+        <button id="loadMoreBtn" class="btn btn-secondary btn-sm">Загрузить ещё</button>
+      </div>
+      
+      <!-- Контейнер сообщений со скроллом -->
+      <div id="messagesList" style="overflow-y: auto; height: 400px;">
+        {% for message in messages %}
+          <div class="message {% if message.sender == 'bot' %}bot{% else %}user{% endif %}" data-message-id="{{ message.id }}">
+            <p><strong>{{ message.first_name }}:</strong> {{ message.text }}</p>
+            {% if message.media_path %}
+              {% set file_ext = message.media_path.split('.')[-1]|lower %}
+              {% if file_ext in ['jpg', 'jpeg', 'png', 'gif'] %}
+                <img src="/{{ message.media_path }}" alt="media" class="message-img">
+              {% else %}
+                <a class="media-link" href="{{ message.media_path }}" target="_blank">Смотреть файл</a>
+              {% endif %}
+            {% endif %}
+            <small>{{ message.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</small>
+          </div>
+        {% endfor %}
+        <div id="bottomAnchor"></div>
+      </div>
+      
+      <!-- Форма отправки сообщения -->
+      <div class="send-form">
+        <!-- Всплывающее уведомление для файла -->
+        <div id="fileNotification" style="display: none; position: absolute; top: -45px; left: 0; right: 0; background: #ffc; color: #000; padding: 5px; text-align: center; border: 1px solid #ccc; border-radius: 5px; z-index: 10;"></div>
+        <form id="sendMessageForm" method="POST" enctype="multipart/form-data">
+          <div class="input-group">
+            <label for="media" class="file-label">
+              <img src="/files/telegram/upload.png" alt="upload icon" class="upload-icon">
+              <input type="file" id="media" name="media" class="file-input">
+            </label>
+            <textarea class="form-control" id="text" name="text" placeholder="Введите сообщение"></textarea>
+            <button type="submit" class="btn btn-primary">Отправить</button>
+          </div>
+          <input type="hidden" name="chat_id" value="{{ chat_id }}">
+          <input type="hidden" name="media_path" id="media_path">
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Скрипты -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+  $(document).ready(function() {
+    var autoScroll = true;
+    var currentPage = 1;
+    var chatsPage = 1;
+    var isSubmitting = false;
+    var $messagesList = $('#messagesList');
+
+    // Функция для прокрутки к якорю (вниз)
+    function fixToBottom() {
+      $('#bottomAnchor')[0].scrollIntoView({ behavior: 'auto' });
+    }
+
+    fixToBottom();
+
+    // После загрузки изображения, если autoScroll включен, прокручиваем вниз
+    $messagesList.find('img').on('load', function() {
+      if (autoScroll) {
+        fixToBottom();
+      }
+    });
+
+    // Обработчик скролла в области сообщений
+    $messagesList.on('scroll', function() {
+      // Если пользователь прокрутил до самого верха, показываем кнопку "Загрузить ещё"
+      if ($(this).scrollTop() === 0) {
+        $('#loadMoreContainer').fadeIn();
+      } else {
+        $('#loadMoreContainer').fadeOut();
+      }
+      
+      // Управляем autoScroll в зависимости от расстояния от низа
+      var distanceFromBottom = $messagesList[0].scrollHeight - $messagesList.scrollTop() - $messagesList.outerHeight();
+      autoScroll = (distanceFromBottom <= 100);
+    });
+
+    // Отслеживаем изменение файла – показываем уведомление о прикреплённом файле
+    $("#media").on("change", function() {
+      if (this.files.length > 0) {
+        $("#fileNotification").text("Файл прикреплён").fadeIn();
+      } else {
+        $("#fileNotification").fadeOut();
+      }
+    });
+
+    function fetchNewMessages() {
+      var chat_id = $("input[name='chat_id']").val();
+      if (chat_id) {
+        var lastMessageId = $('#messagesList .message:last').data('message-id') || 0;
+        $.ajax({
+          url: "{{ url_for('get_new_messages') }}",
+          method: "GET",
+          data: { chat_id: chat_id, last_id: lastMessageId },
+          success: function(response) {
+            if (response.new_messages_html && response.new_messages_html.trim() !== "") {
+              $('#bottomAnchor').remove();
+              $messagesList.append(response.new_messages_html);
+              $messagesList.append('<div id="bottomAnchor"></div>');
+              if (autoScroll) {
+                fixToBottom();
+              }
+            }
+          },
+          error: function() {
+            console.error('Ошибка при получении новых сообщений.');
+          }
+        });
+      }
+    }
+    
+    setInterval(fetchNewMessages, 1000);
+    
+    $('#sendMessageForm').on('submit', function(e){
+      e.preventDefault();
+      if(isSubmitting) return;
+      isSubmitting = true;
+      
+      var chat_id = $("input[name='chat_id']").val();
+      if (!chat_id) {
+        alert("Выберите чат для отправки сообщения.");
+        isSubmitting = false;
+        return;
+      }
+      var fileInput = document.getElementById('media');
+      if(fileInput.files.length > 0) {
+        // Показываем уведомление о загрузке файла
+        $("#fileNotification").text("Файл загружается, подождите пока не будет отправлено сообщение").fadeIn();
+        var formData = new FormData(this);
+        $.ajax({
+          url: "{{ url_for('telegram_upload') }}",
+          type: 'POST',
+          data: formData,
+          contentType: false,
+          processData: false,
+          success: function(response){
+            if(response.success){
+              $messagesList.html(response.messages_html);
+              $messagesList.append('<div id="bottomAnchor"></div>');
+              fixToBottom();
+              $("#text").val('');
+              $("#media").val('');
+              $("#media_path").val('');
+            } else {
+              alert(response.error);
+            }
+            isSubmitting = false;
+            $("#fileNotification").fadeOut();
+          },
+          error: function(){
+            alert('Ошибка при отправке файла.');
+            isSubmitting = false;
+            $("#fileNotification").fadeOut();
+          }
+        });
+      } else {
+        var text = $("#text").val();
+        $.ajax({
+          url: "{{ url_for('telegram_interface') }}",
+          method: "POST",
+          data: { chat_id: chat_id, text: text },
+          success: function(response){
+            if(response.success){
+              $messagesList.html(response.messages_html);
+              $messagesList.append('<div id="bottomAnchor"></div>');
+              fixToBottom();
+              $("#text").val('');
+            } else {
+              alert(response.error);
+            }
+            isSubmitting = false;
+          },
+          error: function(){
+            alert('Ошибка при отправке сообщения.');
+            isSubmitting = false;
+          }
+        });
+      }
+    });
+
+    // Отправка сообщения по нажатию Enter (без Shift)
+    $('#text').on('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        $('#sendMessageForm').submit();
+      }
+    });
+
+    // Загрузка старых сообщений по клику на "Загрузить ещё"
+    $("#loadMoreBtn").click(function(){
+      var chat_id = $("input[name='chat_id']").val();
+      if (chat_id) {
+        var nextPage = currentPage + 1;
+        $.ajax({
+          url: "{{ url_for('load_more_messages') }}",
+          method: "GET",
+          data: { chat_id: chat_id, page: nextPage },
+          success: function(response) {
+            if (response.old_messages_html && response.old_messages_html.trim() !== "") {
+              var oldScrollHeight = $messagesList[0].scrollHeight;
+              $messagesList.prepend(response.old_messages_html);
+              var newScrollHeight = $messagesList[0].scrollHeight;
+              $messagesList.scrollTop(newScrollHeight - oldScrollHeight);
+              currentPage = nextPage;
+            }
+          },
+          error: function() {
+            console.error('Ошибка при загрузке более старых сообщений.');
+          }
+        });
+      }
+    });
+    
+    $("#loadMoreChats").click(function(){
+      chatsPage++;
+      $.ajax({
+        url: "{{ url_for('load_more_chats') }}",
+        method: "GET",
+        data: { page: chatsPage },
+        success: function(response) {
+          if (response.chats_html && response.chats_html.trim() !== "") {
+            $("#chatList").append(response.chats_html);
+          } else {
+            $("#loadMoreChats").hide();
+          }
+        },
+        error: function() {
+          console.error('Ошибка при загрузке дополнительных чатов.');
+        }
+      });
+    });
+
+    // Делегирование события двойного клика для изображений в сообщениях
+    // При двойном клике изображение открывается в новом окне
+    $('#messagesList').on('dblclick', 'img.message-img', function() {
+      var src = $(this).attr('src');
+      if(src) {
+        window.open(src, '_blank');
+      }
+    });
+  });
+</script>
+
+<script type="text/javascript">
+  var updateChatInterval = setInterval(function() {
+    $.ajax({
+      url: "{{ url_for('update_chat_list') }}",
+      method: "GET",
+      data: { search: $('#chatSearchInput').val() },
+      success: function(response) {
+        if (response.chats_html) {
+          $("#chatList").html(response.chats_html);
+        }
+      },
+      error: function() {
+        console.error('Ошибка при обновлении списка чатов.');
+      }
+    });
+  }, 3000);
+
+  $("#loadMoreChats").on('click', function() {
+    clearInterval(updateChatInterval);
+  });
+</script>
+
+<script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function() {
+  // Функция для переключения в режим чата на мобильных устройствах
+  function switchToChat(url) {
+    // Подгружаем содержимое чата через AJAX (fetch)
+    fetch(url)
+      .then(response => response.text())
+      .then(html => {
+        // Создаем временный контейнер для парсинга HTML
+        var parser = new DOMParser();
+        var doc = parser.parseFromString(html, 'text/html');
+        // Предполагаем, что контейнер с сообщениями имеет класс .chat-messages
+        var newChatContent = doc.querySelector('.chat-messages');
+        if(newChatContent) {
+          document.querySelector('.chat-messages').innerHTML = newChatContent.innerHTML;
+          // Добавляем кнопку "Назад к списку", если ее еще нет
+          addBackButton();
+          // Переключаем вид: добавляем класс для отображения чата
+          document.querySelector('.chat-container').classList.add('chat-active');
+        }
+      })
+      .catch(err => console.error("Ошибка загрузки чата:", err));
+  }
+
+  // Функция для добавления кнопки "Назад к списку" в заголовок чата
+  function addBackButton() {
+    var chatHeader = document.querySelector('.chat-header');
+    if(chatHeader && !chatHeader.querySelector('.back-btn')) {
+      var backBtn = document.createElement('button');
+      backBtn.className = 'btn btn-secondary btn-sm back-btn';
+      backBtn.textContent = 'Назад к списку';
+      backBtn.addEventListener('click', function() {
+        document.querySelector('.chat-container').classList.remove('chat-active');
+      });
+      // Вставляем кнопку в начало заголовка
+      chatHeader.insertBefore(backBtn, chatHeader.firstChild);
+    }
+  }
+
+  // Если устройство мобильное (ширина экрана ≤768px)
+  if(window.innerWidth <= 768) {
+    // Если URL уже содержит параметр chat_id — сразу переключаем режим
+    var urlParams = new URLSearchParams(window.location.search);
+    if(urlParams.has('chat_id')) {
+      document.querySelector('.chat-container').classList.add('chat-active');
+      addBackButton();
+    }
+    
+    // Навешиваем обработчики на ссылки списка чатов
+    var chatLinks = document.querySelectorAll('.chat-list a');
+    chatLinks.forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        e.preventDefault(); // Предотвращаем переход по ссылке
+        var url = link.getAttribute('href');
+        switchToChat(url);
+        // Если необходимо, можно обновить адресную строку без перезагрузки:
+        window.history.pushState(null, "", url);
+      });
+    });
+  }
+});
+
+</script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Мастерская - Проекты</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="js/icon.png">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Poppins:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="files/main/bootstrap.min.css">
+  <!-- jQuery UI CSS -->
+  <link rel="stylesheet" href="files/main/jquery-ui.css">
+  <!-- Внешний файл стилей -->
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="js/audio-player.css">
+  <link rel="stylesheet" href="js/mobile_styles.css">
+  <link rel="stylesheet" href="js/open_file.css">
+  <link rel="stylesheet" href="js/task.css">
+  <link rel="stylesheet" href="js/gemini.css">
+  <link rel="stylesheet" href="js/storage.css">
+  <link rel="stylesheet" href="files/notify/styles.css">
+  <link rel="stylesheet" href="files/wiki/styles.css">
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <!-- Шапка -->
+  <div id="header">
+    <h4 id="main-header">Мастерская - Библиотека</h4>
+    <button id="toggle-theme" class="btn btn-light"><img src="js/theme.png" alt="Сменить тему" class="toolbar-icon"></button>
+    <button id="toggle-projects" class="btn btn-light">Проекты</button>
+  </div>
+  <div class="container-fluid">
+    <div class="row no-gutters">
+      <!-- Панель проектов -->
+      <div class="col-md-3" id="projects-list">
+        <input type="text" id="search-projects" placeholder="Поиск проектов...">
+        <button id="new-project" class="btn btn-primary btn-block mb-2">Новый проект</button>
+        <div id="projects-container">
+          {% for project in projects %}
+            <div class="project-item" data-project="{{ project }}" data-fav="{{ project in favorites and '★' or '' }}">
+              <span class="proj-name">{{ project in favorites and '★ ' or '' }}{{ project }}</span>
+            </div>
+          {% endfor %}
+        </div>
+        <!-- Кнопка "Загрузить еще" для пагинации -->
+        {% if has_more %}
+          <div id="load-more-container" class="text-center mt-2">
+            <button id="load_more" class="btn btn-secondary" type="button">Загрузить ещё</button>
+          </div>
+        {% endif %}
+      </div>
+      <!-- Основная область редактора -->
+      <div class="col-md-9">
+        <!-- Панель инструментов редактора -->
+       <!-- Панель инструментов для мобильных и десктопных устройств -->
+      <div id="toolbar" class="toolbar-container">
+        <div class="toolbar-visible">
+          <button id="upload-btn" class="btn btn-info btn-sm">Загрузить</button>
+          <button id="record-btn" class="btn btn-secondary btn-sm">Записать аудио</button>
+          <button id="photo-btn" class="btn btn-secondary btn-sm">Cнимок</button>
+        </div>
+        <div class="toolbar-visible-desktop">
+          <select id="font-size" class="btn btn-light btn-sm"></select>
+          <button class="format-btn btn btn-light btn-sm" data-command="bold"><b>B</b></button>
+          <button class="format-btn btn btn-light btn-sm" data-command="italic"><i>I</i></button>
+          <button class="format-btn btn btn-light btn-sm" data-command="underline"><u>U</u></button>
+          <select id="text-align" class="btn btn-light btn-sm">
+            <option value="left">&#x2190;</option>
+            <option value="center">&#x2194;</option>
+            <option value="right">&#x2192;</option>
+          </select>
+          <button id="insert-empty-para-btn" class="btn btn-light btn-sm toolbar-item" title="Новый абзац в конце">Новый абзац</button>
+          <button id="task" class="btn btn-light btn-sm toolbar-item" title="Добавить задачу">Задача</button>
+        </div>
+        <div class="toolbar-hidden">
+          <button id="clickable-text-btn" class="btn btn-light btn-sm" title="Вскопируемый текст">
+            <img src="js/copy.png" alt="Копируемый" class="toolbar-icon">
+          </button>
+          <button id="link-btn" class="btn btn-light btn-sm" title="Добавить ссылку">
+            <img src="js/link.png" class="toolbar-icon">
+          </button>
+          <button id="quote-btn" class="btn btn-light btn-sm" title="Цитировать">
+            <img src="js/quote.png" class="toolbar-icon">
+          </button>
+          <button id="video" class="btn btn-info btn-sm">Загрузить видео</button>
+          <button id="filepath" class="btn btn-info btn-sm">Прикрепить файл</button>
+          <button id="gemini" class="btn btn-light btn-sm toolbar-item" title="Задать вопрос к Gemini">Gemini</button>
+          <button id="wikipedia" class="btn btn-light btn-sm toolbar-item" title="Искать информацию в википедии">Поиск</button>
+          <button id="chat" class="btn btn-light btn-sm toolbar-item" title="Общайтесь другими участниками">Чат</button>
+          <button id="storage" class="btn btn-light btn-sm toolbar-item" title="Управляйте прикрепленными файлами">Хранилище</button>
+          <button id="telegram" class="btn btn-light btn-sm toolbar-item" title="Подключите телеграм бота">Телеграм</button>
+          <button id="unique-telegram-massages" class="btn btn-light btn-sm toolbar-item" title="Отправить сообщения в телеграм">Сообщение</button>
+          <button id="iakor" class="btn btn-light btn-sm toolbar-item" title="Добавьте заглавления">Якор</button>
+          <button id="list-iakor" class="btn btn-light btn-sm toolbar-item">Главы</button>
+          <button id="access" class="btn btn-info btn-sm">Доступ</button>
+        </div>
+
+        <button id="save" class="btn btn-success btn-sm">Сохранить</button>
+          <!-- Кнопка для раскрытия для десктопа -->
+          <button id="desktop-more" class="btn btn-light btn-sm">▼</button>
+
+          <!-- Кнопка для раскрытия для мобильных устройств -->
+          <button id="mobile-more" class="btn btn-light btn-sm">▼</button>
+      </div>
+
+        <!-- Редактор -->
+        <br/>
+        <div id="editor-container">
+          <div id="editor" contenteditable="true" spellcheck="false"></div>
+          <div id="video-placeholder"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Контекстное меню для проектов -->
+  <div class="context-menu" id="context-menu">
+    <ul>
+      <li id="ctx-open">Открыть проект</li>
+      <li id="ctx-rename">Переименовать</li>
+      <li id="ctx-delete">Удалить</li>
+      <li id="ctx-fav">Добавить в избранное</li>
+    </ul>
+  </div>
+  <!-- Контекстное меню для изображений -->
+  <div class="context-menu" id="img-context-menu">
+    <ul>
+      <li id="img-resize">Изменить размер</li>
+      <li id="img-align-left">Выровнять по левому краю</li>
+      <li id="img-align-center">Центрировать</li>
+      <li id="img-align-right">Выровнять по правому краю</li>
+    </ul>
+  </div>
+
+  <!-- Модальное окно для камеры -->
+  <div id="camera-modal">
+    <div style="background:#fff; padding:20px; border-radius:5px; text-align:center;">
+      <video id="video-preview" autoplay style="max-width:100%;"></video><br>
+      <button id="flip-camera-btn" class="btn btn-info">Перевернуть камеру</button>
+      <button id="capture-btn" class="btn btn-primary">Сделать снимок</button>
+      <button id="cancel-capture-btn" class="btn btn-secondary">Отменить</button>
+    </div>
+  </div>
+
+
+  <!-- Прогресс-бар загрузки -->
+  <div id="upload-progress" style="position:fixed; top:10px; right:10px; width:200px; display:none; z-index:4000;">
+    <div class="progress">
+      <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+  </div>
+
+  <!-- Модальное окно для открытия доступа -->
+<div class="modal fade" id="accessModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content" id="modalContent">
+      <!-- Контент будет вставляться с помощью JS -->
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно -->
+<div class="modal" tabindex="-1" id="anchor-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Выберите якорь</h5>
+        <!-- Уникальная кнопка закрытия -->
+        <button type="button" class="btn-close" id="anchor-modal-close" aria-label="Закрыть">x</button>
+      </div>
+      <div class="modal-body">
+        <ul id="anchor-list-modal">
+          <!-- Якоря будут добавляться сюда -->
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <!-- Скрытые input для загрузки файлов -->
+  <input type="file" id="upload-file" style="display:none;">
+  <input type="file" accept="audio/*" capture="microphone" id="capture-audio" style="display:none;">
+  <input type="file" accept="image/*" capture="camera" id="capture-photo" style="display:none;">
+
+  <!-- Подключаем jQuery и jQuery UI -->
+  <script src="files/main/jquery-3.5.1.min.js"></script>
+  <script src="files/main/jquery-ui.min.js"></script>
+
+  <!-- Подключение Bootstrap JS (после jQuery) -->
+  <script src="files/main/bootstrap.bundle.min.js"></script>
+  
+  <!-- Подключение наших JS файлов -->
+  <script src="js/projects.js"></script>
+  <script src="js/upload.js"></script>
+  <script src="js/camera.js"></script>
+  <script src="js/toolbar.js"></script>
+  <script src="js/image-context.js"></script>
+  <script src="js/dark_theme.js"></script>
+  <script src="js/mobile_scripts.js"></script>
+  <script src="js/audio-player.js"></script>
+  <script src="js/playerjs.js"></script>
+  <script src="js/video.js"></script>
+  <script src="js/open_file.js"></script>
+  <script src="js/task.js"></script>
+  <script src="js/gemini.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="files/acess/acess.js"></script>
+  <script src="files/notify/notify.js"></script>
+  <script src="files/main/fuse.min.js"></script>
+  <script src="files/wiki/script.js"></script>
+  <script src="files/iakor/script.js"></script>
+  <script>
+    function loadMore() {
+      // Текущая страница передаётся сервером как current_page
+      const currentPage = {{ current_page }};
+      window.location.href = '/?page=' + (currentPage + 1);
+    }
+  </script>
+</body>
+</html>

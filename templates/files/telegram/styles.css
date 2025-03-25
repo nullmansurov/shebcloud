@@ -1,0 +1,212 @@
+/* Общие стили с использованием шрифта Montserrat */
+body {
+  font-family: 'Montserrat', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Контейнер чата: левая колонка – список чатов, правая – окно сообщений */
+.chat-container {
+  display: flex;
+  height: 100vh;
+  max-width: 1200px;
+  margin: 0 auto; /* Центрирование контейнера */
+}
+
+/* Чат-лист */
+.chat-list {
+  width: 300px;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+/* Навигационная панель (маленькие кнопки) */
+.nav-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.nav-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 10px; /* Увеличенное скругление */
+  cursor: pointer;
+  font-size: 0.8em;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.nav-btn:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+/* Чат с сообщениями: ограниченная ширина и выравнивание слева */
+.chat-messages {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  max-width: 800px;
+  margin-left: 0;
+}
+
+/* Заголовок чата */
+.chat-header {
+  padding: 10px;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+/* Список сообщений */
+#messagesList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  background-color: #f7f7f7;
+}
+
+/* Стили для сообщений */
+.message {
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 12px; /* Увеличенное скругление */
+  max-width: 70%;
+  word-wrap: break-word;
+}
+
+.message.bot {
+  background-color: transparent; /* Сообщения бота сливаются с фоном */
+  color: #000;
+  margin-right: auto;
+}
+
+.message.user {
+  background-color: #4a90e2; /* Синий оттень для пользовательских сообщений */
+  color: #fff;
+  margin-left: auto;
+}
+
+.message img {
+  max-width: 200px;
+  display: block;
+  margin-top: 10px;
+}
+
+.message a.media-link {
+  display: block;
+  margin-top: 10px;
+}
+
+/* Фиксированный якорь для скролла */
+.fixed-to-bottom {
+  overflow-y: auto;
+}
+
+/* Форма отправки сообщений */
+.send-form {
+  background-color: #fff;
+  padding: 8px 10px;
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+  margin-top: 5px;
+  position: relative;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+/* Раскладка элементов формы отправки */
+.input-group {
+  display: flex;
+  align-items: center;
+}
+
+/* Кастомный file input – скрываем стандартный */
+.file-label {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.upload-icon {
+  width: 30px;
+  height: 30px;
+}
+
+.file-input {
+  display: none;
+}
+
+/* Текстовое поле: компактное и с фиксированной высотой */
+.input-group textarea {
+  flex-grow: 1;
+  resize: none;
+  margin-right: 10px;
+  height: 40px;
+  padding: 5px;
+  font-size: 1em;
+}
+
+/* Мобильные стили */
+@media (max-width: 768px) {
+  /* Переключаем блочную раскладку для мобильного */
+  .chat-container {
+    display: block;
+    position: relative;
+  }
+  
+  .chat-list,
+  .chat-messages {
+    width: 100%;
+  }
+  
+  /* По умолчанию показываем только список чатов */
+  .chat-list {
+    display: block;
+  }
+  .chat-messages {
+    display: none;
+    height: 100vh; /* Окно сообщений занимает всю высоту экрана */
+    flex-direction: column;
+  }
+  
+  /* При активном чате (нажатии на чат) */
+  .chat-container.chat-active .chat-list {
+    display: none;
+  }
+  .chat-container.chat-active .chat-messages {
+    display: flex;
+  }
+  
+  /* Стилизация кнопки "Назад к списку" – выровнена справа */
+  .chat-header {
+    position: relative;
+    padding-right: 50px; /* Оставляем место для кнопки справа */
+  }
+  .back-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    display: inline-block;
+  }
+  
+  /* Контейнер сообщений занимает оставшееся пространство */
+  #messagesList {
+    flex: 1;
+    overflow-y: auto;
+  }
+  
+  /* Форма отправки не сжимается */
+  .send-form {
+    flex-shrink: 0;
+  }
+}

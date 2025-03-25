@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Админка - Мастерская</title>
+  <link rel="icon" type="image/png" href="js/icon.png">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* Сброс стилей и базовая типографика */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      background: #fff;
+      color: #333;
+      padding: 1rem;
+    }
+    
+    /* Центрирование контента */
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+      padding: 0 1rem;
+    }
+    
+    /* Заголовки и навигация */
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    h2 {
+      font-size: 1.5rem;
+      margin: 1.5rem 0 1rem;
+    }
+    nav {
+      margin-bottom: 1.5rem;
+    }
+    nav a {
+      color: #3498db;
+      text-decoration: none;
+      margin: 0 0.5rem;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Форма создания пользователя */
+    form#create-user {
+      max-width: 350px;
+      margin: 0 auto 1.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 1rem;
+    }
+    .form-content {
+      text-align: left;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-label {
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+      display: block;
+    }
+    .form-input,
+    .form-select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font-size: 0.9rem;
+    }
+    .form-input:focus,
+    .form-select:focus {
+      outline: none;
+      border-color: #3498db;
+    }
+    
+    /* Кнопка "Создать пользователя" */
+    .create-user-btn {
+      background: #3498db;
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      display: block;
+      margin: 0 auto;
+      transition: background 0.3s ease;
+    }
+    .create-user-btn:hover {
+      background: #2980b9;
+    }
+    
+    /* Таблица пользователей */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.5rem;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    table thead {
+      background: #f2f2f2;
+    }
+    table th, table td {
+      border: 1px solid #ddd;
+      padding: 0.5rem;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    table tbody tr:hover {
+      background: #f9f9f9;
+    }
+    
+    /* Кнопка удаления — родительский контейнер без фонового оформления */
+    table td form {
+      display: inline;
+      background: transparent;
+      border: none;
+      padding: 0;
+      margin: 0;
+    }
+    table td form button[type="submit"] {
+      background: #e74c3c;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    table td form button[type="submit"]:hover {
+      background: #c0392b;
+    }
+    
+    /* Flash-сообщения */
+    ul.flash-messages {
+      list-style: none;
+      margin: 1rem 0;
+      padding: 0;
+      text-align: center;
+    }
+    ul.flash-messages li {
+      padding: 0.5rem 1rem;
+      margin-bottom: 0.5rem;
+      border-radius: 3px;
+      font-size: 0.9rem;
+    }
+    ul.flash-messages li.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    ul.flash-messages li.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    /* Адаптивность для планшетов и мобильных устройств */
+    @media (max-width: 768px) {
+      .container {
+        max-width: 100%;
+        padding: 0 1rem;
+      }
+      form#create-user {
+        max-width: 100%;
+      }
+      /* Таблица становится скроллируемой по горизонтали */
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      body {
+        font-size: 13px;
+      }
+      .create-user-btn {
+        width: 100%;
+        padding: 0.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Админ-панель</h1>
+    <nav>
+      <a href="{{ url_for('library') }}">Вернуться в библиотеку</a> |
+      <a href="{{ url_for('logout') }}">Выйти</a>
+    </nav>
+    
+    <h2>Создать нового пользователя</h2>
+    <form method="post" id="create-user">
+      {{ form.hidden_tag() }}
+      <div class="form-content">
+        <div class="form-group">
+          <label class="form-label" for="username">{{ form.username.label }}</label>
+          {{ form.username(class="form-input", id="username", size=32) }}
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="password">{{ form.password.label }}</label>
+          {{ form.password(class="form-input", id="password", size=32) }}
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="role">{{ form.role.label }}</label>
+          {{ form.role(class="form-select", id="role") }}
+        </div>
+        <div class="form-group">
+          {{ form.submit(class="create-user-btn") }}
+        </div>
+      </div>
+    </form>
+    
+    <h2>Список пользователей</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Имя пользователя</th>
+          <th>Роль</th>
+          <th>Действия</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr>
+          <td>{{ user.id }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.role }}</td>
+          <td>
+            {% if user.id != current_user.id %}
+            <form method="post" action="{{ url_for('delete_user') }}">
+              <input type="hidden" name="user_id" value="{{ user.id }}">
+              <button type="submit">Удалить</button>
+            </form>
+            {% else %}
+            Нельзя удалить
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flash-messages">
+          {% for category, message in messages %}
+          <li class="{{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+  </div>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Рассылка сообщений</title>
+  <!-- Подключение шрифта Montserrat -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="js/icon.png">
+  <style>
+    body {
+      background: #f0f2f5;
+      font-family: 'Montserrat', sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .button-group {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+    .btn {
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      transition: background 0.3s ease;
+    }
+    .btn-back {
+      background-color: #6c757d;
+      color: #fff;
+    }
+    .btn-back:hover {
+      background-color: #5a6268;
+    }
+    .btn-insert {
+      background-color: #007BFF;
+      color: #fff;
+    }
+    .btn-insert:hover {
+      background-color: #0056b3;
+    }
+    form {
+      max-width: 100%;
+      margin: 0 auto;
+    }
+    label {
+      display: block;
+      margin-top: 20px;
+      font-weight: 500;
+      color: #555;
+    }
+    textarea, input[type="file"] {
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    textarea {
+      min-height: 180px;
+      resize: vertical;
+    }
+    .submit-btn {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      background-color: #007BFF;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .submit-btn:hover {
+      background-color: #218838;
+    }
+    #progressContainer {
+      display: none;
+      margin-top: 20px;
+    }
+    #progressWrapper {
+      width: 100%;
+      background-color: #ddd;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    #progressBar {
+      width: 0;
+      height: 20px;
+      background-color: green;
+      border-radius: 6px;
+    }
+    .alert {
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      margin-bottom: 15px;
+      border-radius: 6px;
+    }
+    .alert.error {
+      background-color: #f44336;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Рассылка сообщений</h1>
+    
+    <!-- Группа кнопок под заголовком -->
+    <div class="button-group">
+      <button type="button" class="btn btn-balck" id="insertFirstName">Вставить [first_name]</button>
+      <button type="button" class="btn btn-back" onclick="window.location.href='/telegram'">Вернуться</button>
+    </div>
+    
+    <!-- Вывод флэш-сообщений -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    
+    <form id="broadcastForm" method="post" enctype="multipart/form-data" action="{{ url_for('telegram_broadcast') }}">
+      <label for="text">Текст сообщения:</label>
+      <textarea name="text" id="text" placeholder="Введите текст сообщения"></textarea>
+      
+      <label for="media">Выберите файл (необязательно):</label>
+      <input type="file" name="media" id="media">
+      
+      <button type="submit" class="submit-btn">Отправить рассылку</button>
+    </form>
+    
+    <div id="progressContainer">
+      <div id="progressWrapper">
+        <div id="progressBar"></div>
+      </div>
+      <span id="progressText"></span>
+    </div>
+  </div>
+  
+  <script>
+    // Вставка шаблона [first_name] в текстовое поле в позиции курсора
+    document.getElementById('insertFirstName').addEventListener('click', function() {
+      var textarea = document.getElementById('text');
+      var cursorPos = textarea.selectionStart;
+      var textBefore = textarea.value.substring(0, cursorPos);
+      var textAfter  = textarea.value.substring(cursorPos);
+      textarea.value = textBefore + '[first_name]' + textAfter;
+      textarea.selectionStart = textarea.selectionEnd = cursorPos + '[first_name]'.length;
+      textarea.focus();
+    });
+  
+    // AJAX-отправка формы с отслеживанием прогресса загрузки файла
+    document.getElementById('broadcastForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      var form = e.target;
+      var formData = new FormData(form);
+      var xhr = new XMLHttpRequest();
+      
+      xhr.open('POST', form.action, true);
+      
+      // Обработка события прогресса загрузки файла
+      xhr.upload.addEventListener('progress', function(e) {
+        if (e.lengthComputable) {
+          var percentComplete = (e.loaded / e.total) * 100;
+          document.getElementById('progressContainer').style.display = 'block';
+          document.getElementById('progressBar').style.width = percentComplete + '%';
+          document.getElementById('progressText').innerText = 'Подождите, происходит обработка';
+        }
+      });
+      
+      // По завершении запроса перезагружаем страницу для отображения флэш-сообщений
+      xhr.addEventListener('load', function() {
+        if (xhr.status === 200) {
+          window.location.reload();
+        } else {
+          alert('Ошибка при отправке формы.');
+        }
+      });
+      
+      xhr.send(formData);
+    });
+  </script>
+</body>
+</html>

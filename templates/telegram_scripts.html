@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Управление скриптами Telegram</title>
+  <!-- Подключение шрифта Montserrat -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
+  <!-- Подключение Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="icon" type="image/png" href="js/icon.png">
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-4">
+    <h1>Управление скриптами Telegram</h1>
+    
+    <!-- Блок для отображения flash-сообщений -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mt-3">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    
+    <div class="row mt-4">
+      <!-- Форма добавления нового скрипта -->
+      <div class="col-md-6">
+        <h3>Добавить новый скрипт</h3>
+        <form method="POST" id="telegramScriptForm" enctype="multipart/form-data">
+          {{ form.hidden_tag() }}
+          
+          <!-- Поле для ключевого слова -->
+          <div class="mb-3">
+            {{ form.keyword.label(class="form-label") }}
+            {{ form.keyword(class="form-control", placeholder="Введите ключевое слово") }}
+          </div>
+
+          <!-- Поле для ввода текста сообщения -->
+          <div class="mb-3">
+            <label for="message_text" class="form-label">Сообщение</label>
+            <textarea class="form-control" id="message_text" placeholder="Введите текст сообщения" rows="3"></textarea>
+          </div>
+          
+          <!-- Чекбоксы: reply кнопки и трекер -->
+          <div class="d-flex mb-3">
+            <div class="form-check me-3">
+              <input class="form-check-input" type="checkbox" id="addButtonsCheckbox">
+              <label class="form-check-label" for="addButtonsCheckbox">Добавить reply кнопки</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="addTrackerCheckbox">
+              <label class="form-check-label" for="addTrackerCheckbox">Трекер</label>
+            </div>
+          </div>
+          
+          <!-- Контейнер для динамических полей кнопок -->
+          <div id="buttonsContainer" style="display: none;">
+            <div id="buttonFields"></div>
+            <button type="button" class="btn btn-secondary mb-3" id="addButtonField">Добавить кнопку</button>
+            <small class="text-muted d-block">Можно добавить до 6 кнопок</small>
+          </div>
+
+          <!-- Скрытое поле для кода -->
+          <input type="hidden" name="{{ form.code.name }}" id="code" value="">
+          
+          <!-- Скрытое поле для пути к файлу -->
+          <input type="hidden" id="filePath" name="filePath" value="">
+
+          <!-- Поле для описания -->
+          <div class="mb-3">
+            {{ form.description.label(class="form-label") }}
+            {{ form.description(class="form-control", placeholder="Описание (необязательно)") }}
+          </div>
+
+          <!-- Загрузка файла -->
+          <div class="mb-3">
+            <label for="media" class="form-label">Загрузить фото</label>
+            <input type="file" class="form-control" id="media" name="media" accept="image/*">
+          </div>
+          
+          <!-- Контейнер для трекера -->
+          <div id="trackerContainer" style="display: none;">
+            <!-- Поиск пользователя -->
+            <div class="mb-3">
+              <label for="trackerSearchInput" class="form-label">Поиск пользователя</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="trackerSearchInput" placeholder="Введите имя пользователя">
+                <button class="btn btn-outline-secondary" type="button" id="trackerSearchButton">Поиск</button>
+              </div>
+            </div>
+            <!-- Результаты поиска -->
+            <div class="mb-3" id="trackerResultsContainer" style="display: none;">
+              <label class="form-label">Результаты поиска</label>
+              <select class="form-select" id="trackerUserSelect"></select>
+            </div>
+            <!-- Сообщение для выбранного пользователя -->
+            <div class="mb-3">
+              <label for="trackerMessage" class="form-label">Сообщение для выбранного пользователя</label>
+              <input type="text" class="form-control" id="trackerMessage" placeholder="Введите сообщение для пользователя">
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center">
+            <button type="submit" class="btn btn-primary">{{ form.submit.label.text }}</button>
+            <a href="/telegram" class="btn btn-secondary ms-2">Вернуться назад</a>
+          </div>
+        </form>
+      </div>
+
+      <!-- Список добавленных скриптов -->
+      <div class="col-md-6">
+        <h3>Список скриптов</h3>
+        {% if scripts %}
+          <ul class="list-group">
+            {% for script in scripts %}
+              <li class="list-group-item mb-2">
+                <h5 class="mb-1">{{ script.keyword }}</h5>
+                {% if script.description %}
+                  <p class="mb-1 text-muted">{{ script.description }}</p>
+                {% endif %}
+                <pre class="bg-light p-2">{{ script.code }}</pre>
+                <!-- Форма для удаления скрипта -->
+                <form method="post" action="{{ url_for('telegram_scripts') }}" class="d-inline">
+                  {{ form.hidden_tag() }}
+                  <input type="hidden" name="delete" value="{{ script.id }}">
+                  <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Вы уверены, что хотите удалить этот скрипт?');">Удалить</button>
+                </form>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p>Скрипты отсутствуют.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Подключение Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Показ/скрытие блока для кнопок
+    document.getElementById('addButtonsCheckbox').addEventListener('change', function() {
+      var container = document.getElementById('buttonsContainer');
+      if (this.checked) {
+        container.style.display = 'block';
+      } else {
+        container.style.display = 'none';
+        document.getElementById('buttonFields').innerHTML = '';
+        buttonCount = 0;
+      }
+    });
+
+    // Логика добавления полей для кнопок (максимум 6)
+    var buttonCount = 0;
+    document.getElementById('addButtonField').addEventListener('click', function() {
+      if (buttonCount < 6) {
+        buttonCount++;
+        var div = document.createElement('div');
+        div.className = "mb-2";
+        div.innerHTML = '<input type="text" class="form-control button-input" placeholder="Название кнопки ' + buttonCount + '">';
+        document.getElementById('buttonFields').appendChild(div);
+      } else {
+        alert("Можно добавить максимум 6 кнопок");
+      }
+    });
+
+    // Автоматическая загрузка файла при выборе
+    document.getElementById('media').addEventListener('change', function() {
+      var formData = new FormData();
+      formData.append('media', this.files[0]);
+
+      fetch('/telegram_upload_second', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById('filePath').value = data.file_path;
+          alert('Файл успешно загружен! Путь к файлу: ' + data.file_path);
+        } else {
+          alert('Ошибка при загрузке файла: ' + data.error);
+        }
+      })
+      .catch(error => alert('Ошибка при загрузке файла: ' + error));
+    });
+
+    // Показ/скрытие контейнера для трекера
+    document.getElementById('addTrackerCheckbox').addEventListener('change', function() {
+      var trackerContainer = document.getElementById('trackerContainer');
+      if (this.checked) {
+        trackerContainer.style.display = 'block';
+      } else {
+        trackerContainer.style.display = 'none';
+        document.getElementById('trackerSearchInput').value = '';
+        document.getElementById('trackerUserSelect').innerHTML = '';
+        document.getElementById('trackerResultsContainer').style.display = 'none';
+      }
+    });
+
+    // Поиск пользователя по введённому имени
+    document.getElementById('trackerSearchButton').addEventListener('click', function() {
+      var searchValue = document.getElementById('trackerSearchInput').value.trim();
+      if (searchValue === '') {
+        alert("Введите имя пользователя для поиска");
+        return;
+      }
+      fetch('/telegram_treker?q=' + encodeURIComponent(searchValue))
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            var trackerUserSelect = document.getElementById('trackerUserSelect');
+            trackerUserSelect.innerHTML = '';
+            if (data.users && data.users.length > 0) {
+              data.users.forEach(function(user) {
+                var option = document.createElement('option');
+                option.value = user.chat_id;
+                option.textContent = user.first_name + ' (' + user.chat_id + ')';
+                trackerUserSelect.appendChild(option);
+              });
+              document.getElementById('trackerResultsContainer').style.display = 'block';
+            } else {
+              trackerUserSelect.innerHTML = '<option value="">Пользователь не найден</option>';
+              document.getElementById('trackerResultsContainer').style.display = 'block';
+            }
+          } else {
+            alert('Ошибка при получении списка пользователей трекера');
+          }
+        })
+        .catch(error => alert('Ошибка при получении списка пользователей трекера: ' + error));
+    });
+
+    // Обработка отправки формы с дополнительными проверками и генерацией кода
+    document.getElementById('telegramScriptForm').addEventListener('submit', function(e) {
+      e.preventDefault(); // Останавливаем стандартную отправку формы
+      
+      // Получаем значение текстового поля сообщения и заменяем переводы строки на "\n"
+      var messageText = document.getElementById('message_text').value.trim();
+      if (messageText === "") {
+        alert("Поле сообщения не может быть пустым");
+        return;
+      }
+      messageText = messageText.replace(/\n/g, "\\n");
+
+      // Проверка ключевого слова
+      var keywordField = document.getElementsByName('{{ form.keyword.name }}')[0];
+      var keyword = keywordField.value.trim();
+      var keywordRegex = /^[A-Za-zА-Яа-я0-9\s]+$/;
+      if (!keywordRegex.test(keyword)) {
+        alert("Ключевое слово может содержать только буквы, цифры и пробелы");
+        return;
+      }
+      keywordField.value = keyword.toLowerCase();
+
+      // Проверка названий кнопок (если включены)
+      var buttons = [];
+      if (document.getElementById('addButtonsCheckbox').checked) {
+        var buttonInputs = document.querySelectorAll('.button-input');
+        var buttonRegex = /^[A-Za-zА-Яа-я0-9\s]+$/;
+        for (var i = 0; i < buttonInputs.length; i++) {
+          var text = buttonInputs[i].value.trim();
+          if (text !== "") {
+            if (!buttonRegex.test(text)) {
+              alert("Названия кнопок не могут содержать знаков препинания");
+              return;
+            }
+            buttons.push(text.replace(/'/g, "\\'").replace(/\n/g, "\\n"));
+          }
+        }
+      }
+      
+      // Получаем путь к файлу (если фото было загружено)
+      var filePath = document.getElementById('filePath').value;
+      
+      // Формирование кода для функции bot_response()
+      var generatedCode = "def bot_response(Message=Message, telegram_bot_instance=telegram_bot_instance, types=types):\n";
+      if (buttons.length > 0) {
+        var buttonsRow = buttons.map(function(btn) {
+          return "'" + btn + "'";
+        }).join(", ");
+        generatedCode += "    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)\n" +
+                         "    markup.row(" + buttonsRow + ")\n";
+        if (filePath) {
+          generatedCode += "    telegram_bot_instance.send_photo(Message.chat.id, open('" + filePath.replace(/\\/g, '\\\\') + "', 'rb'))\n";
+        }
+        generatedCode += "    telegram_bot_instance.send_message(Message.chat.id, '" + messageText.replace(/'/g, "\\'") + "', reply_markup=markup)";
+      } else {
+        if (filePath) {
+          generatedCode += "    telegram_bot_instance.send_photo(Message.chat.id, open('" + filePath.replace(/\\/g, '\\\\') + "', 'rb'))\n";
+        }
+        generatedCode += "    telegram_bot_instance.send_message(Message.chat.id, '" + messageText.replace(/'/g, "\\'") + "')";
+      }
+      
+      // Если трекер включён, добавляем отправку сообщения выбранному пользователю
+      if (document.getElementById('addTrackerCheckbox').checked) {
+        var trackerUserSelect = document.getElementById('trackerUserSelect');
+        var selectedChatId = trackerUserSelect.value;
+        var trackerMessage = document.getElementById('trackerMessage').value.trim();
+        if (selectedChatId === "" || selectedChatId === null) {
+          alert("Выберите пользователя из результатов поиска");
+          return;
+        }
+        if (trackerMessage === "") {
+          alert("Введите сообщение для выбранного пользователя");
+          return;
+        }
+        generatedCode += "\n    telegram_bot_instance.send_message(" + selectedChatId + ", '" + trackerMessage.replace(/'/g, "\\'") + "')";
+      }
+      
+      // Записываем сгенерированный код в скрытое поле "code"
+      document.getElementById('code').value = generatedCode;
+      
+      // Отправляем форму
+      HTMLFormElement.prototype.submit.call(document.getElementById('telegramScriptForm'));
+    });
+  </script>
+</body>
+</html>

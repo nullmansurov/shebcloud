@@ -1,0 +1,14 @@
+{% for message in messages %}
+  <div class="message {% if message.sender == 'bot' %}bot{% else %}user{% endif %}" data-message-id="{{ message.id }}">
+    <p><strong>{{ message.first_name }}:</strong> {{ message.text }}</p>
+    {% if message.media_path %}
+      {% set file_ext = message.media_path.split('.')[-1]|lower %}
+      {% if file_ext in ['jpg', 'jpeg', 'png', 'gif'] %}
+        <img src="/{{ message.media_path }}" alt="media">
+      {% else %}
+        <a class="media-link" href="{{ message.media_path }}" target="_blank">Смотреть файл</a>
+      {% endif %}
+    {% endif %}
+    <small>{{ message.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</small>
+  </div>
+{% endfor %}

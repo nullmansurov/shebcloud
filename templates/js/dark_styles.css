@@ -1,0 +1,1294 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap');
+
+body { 
+  margin: 0; 
+  padding: 0; 
+  font-family: 'Montserrat', sans-serif;
+  background: #121212;
+  color: #e0e0e0;
+  min-height: 100vh;
+}
+
+/* Фиксированная шапка (#header):
+   Шапка всегда остаётся в верхней части экрана */
+#header {
+  background: #1E1E1E;
+  color: #7C90DB;
+  padding: 0.8rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 200;
+}
+#header h4 { 
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Отступ для основного контента, чтобы шапка не перекрывала его */
+.container-fluid {
+  padding-top: 50px; /* равен высоте header */
+}
+
+/* Панель проектов (#projects-list):
+   Используем min-height, чтобы даже при малом содержимом панель занимала всю высоту (с учётом 50px header) */
+#projects-list {
+  background: #1A1A1A;
+  border-right: none;
+  padding: 1rem;
+  overflow-y: auto;
+  min-height: calc(100vh - 50px);
+  box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+  position: relative;
+}
+#projects-list::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background: linear-gradient(to top, #1A1A1A 0%, rgba(26,26,26,0) 100%);
+  pointer-events: none;
+}
+
+/* Поле поиска проектов:
+   Добавлен отступ сверху, чтобы оно не сливалось с header */
+#search-projects {
+  width: 100%;
+  margin-top: 14px;
+  margin-bottom: 1rem;
+  padding: 0.8rem;
+  background: #2D2D2D;
+  border: none;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+#search-projects:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #7C90DB;
+}
+
+@media (max-width: 768px) {
+  #projects-list { 
+    display: none; 
+    position: fixed; 
+    top: 50px; 
+    left: 0; 
+    width: 80%; 
+    height: calc(100vh - 50px); 
+    z-index: 1000; 
+    background: #1A1A1A; 
+    border-right: 1px solid #444; 
+  }
+  #toggle-projects { 
+    display: block; 
+  }
+}
+@media (min-width: 769px) {
+  #toggle-projects { 
+    display: none; 
+  }
+}
+
+.project-item {
+  padding: 0.8rem;
+  margin-bottom: 0.6rem;
+  background: #252525;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+.project-item:hover {
+  transform: translateX(5px);
+}
+.project-item.selected { 
+  background: #7C90DB;
+  color: #fff;
+}
+.proj-name::before {
+  content: attr(data-fav);
+  color: #FFD75C;
+  margin-right: 8px;
+  font-size: 16px;
+}
+.project-item .mobile-options {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  color: #fff;
+  cursor: pointer;
+  display: none;
+}
+@media (max-width: 768px) {
+  .project-item .mobile-options { 
+    display: inline-block; 
+  }
+}
+
+/* Контекстное меню */
+.context-menu { 
+  position: absolute; 
+  z-index: 2000; 
+  background: #2D2D2D; 
+  border: none; 
+  display: none;
+  width: 160px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  overflow: hidden;
+  animation: fadeIn 0.2s ease-out;
+}
+.context-menu ul { 
+  list-style: none; 
+  margin: 0; 
+  padding: 0.5rem 0; 
+}
+.context-menu ul li { 
+  padding: 0.8rem 1.2rem; 
+  cursor: pointer; 
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+.context-menu ul li:hover { 
+  background: #3D3D3D; 
+}
+
+/* Панель инструментов редактора (#toolbar):
+   Прилипает к верхней части экрана с отступом в 50px (высота header) */
+#toolbar {
+  background: #1E1E1E;
+  border-bottom: none;
+  padding: 0.5rem 1.5rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  gap: 0.5rem;
+  position: sticky;
+  top: 50px;
+  top: calc(50px + 14px);
+  z-index: 150;
+  border-top: 1px solid #444;
+}
+
+.toolbar-hidden {
+    display: none;
+    flex-wrap: wrap;
+}
+
+#toolbar button, 
+#toolbar select, 
+#toolbar input[type="color"] {
+  margin: 0;
+  background: #2D2D2D;
+  border: none;
+  color: #fff;
+  padding: 0.5rem 0.9rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+#toolbar button:hover {
+  background: #7C90DB;
+}
+
+#toolbar button {
+    margin: 4px;
+}
+
+/* Стили для цитаты */
+blockquote {
+  border-left: 3px solid #7C90DB;
+  padding: 1rem 1.5rem;
+  background: #1E1E1E;
+  border-radius: 6px;
+  margin: 1rem 0;
+  font-style: italic;
+  color: white;
+}
+
+/* Стили для кликабельной ссылки */
+.clickable-link {
+  color: #7C90DB;
+  text-decoration: none;
+  position: relative;
+}
+.clickable-link:after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: #7C90DB;
+  transition: width 0.3s ease;
+}
+.clickable-link:hover:after {
+  width: 100%;
+}
+
+/* Стили для кодового блока (ранее "нажимного текста") */
+.clickable-text {
+  border: 1px dashed #7C90DB;
+  border-radius: 4px;
+  margin: 10px 0;
+  position: relative;
+  background: #252525;
+}
+
+/* Блок для кнопки копирования – не редактируемый */
+.clickable-text .copy-container {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
+/* Кнопка копирования */
+.clickable-text .copy-icon {
+  font-size: 16px;
+  color: #fff;
+  background: rgba(0,0,0,0.5);
+  border: none;
+  padding: 2px 5px;
+  border-radius: 3px;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Редактируемая область с кодом */
+.clickable-text .code-content {
+  margin: 0;
+  padding: 40px 10px 10px 10px; /* отступ сверху для кнопки копирования */
+  font-family: monospace;
+  white-space: pre-wrap;
+  color: #f8f8f2;
+  background: #2d2d2d;
+  border-radius: 4px;
+}
+
+
+/* Область редактора:
+   Теперь блок #editor-container не ограничен по высоте (нет фиксированного height и внутреннего скролла) */
+#editor-container {
+  padding: 1rem;
+  background: #121212;
+  /* Удалены height и overflow-y: авто – прокрутка происходит на уровне всей страницы */
+}
+#editor {
+  width: 100%;
+  min-height: 300px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #e0e0e0;
+  padding: 0 1rem;
+  padding-bottom: 2rem; /* Дополнительный отступ в конце редактора */
+}
+#editor img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0.8rem auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  cursor: pointer;
+}
+
+/* Кастомный аудиоплеер */
+.custom-audio {
+  display: inline-block;
+  vertical-align: middle;
+  border: 1px solid #444;
+  padding: 0.8rem;
+  border-radius: 8px;
+  background: #252525;
+  margin: 0.8rem 0;
+}
+.custom-audio[contenteditable="false"] {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Модальное окно */
+#camera-modal {
+  display: none;
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%; 
+  background: rgba(18,18,18,0.95); 
+  z-index: 3000; 
+  align-items: center; 
+  justify-content: center;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Мобильная адаптация */
+@media (max-width: 768px) {
+  #toolbar {
+    padding: 0.4rem 1rem;
+  }
+  
+  #toolbar button {
+    padding: 0.4rem 0.8rem;
+    font-size: 10px;
+    margin: 2px;
+  }
+  
+  #editor-container {
+    padding: 0.8rem;
+  }
+  
+  #editor {
+    font-size: 13px;
+    padding: 0 0.5rem;
+  }
+}
+
+
+/* task-dark.css */
+
+/* Контейнер списка задач с отступом для таймлайна */
+.task-list {
+  position: relative;
+  padding-left: 60px; /* отводим место для линии и точек */
+  margin: 20px 0;
+  background: transparent; /* фон берётся из верстки (тёмный) */
+}
+
+/* Единая вертикальная линия, проходящая через все задачи */
+.task-list::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 30px; /* линия проходит по центру точки */
+  width: 2px;
+  background: #555; /* более тёмный серый для тёмной темы */
+  z-index: 1;
+}
+
+/* Каждый элемент задачи */
+.task {
+  position: relative;
+  margin-bottom: 10px;
+  padding: 10px;
+  max-width: 90%;
+  background: #2b2b2b; /* тёмный фон для задачи */
+  border-radius: 4px;
+  transition: opacity 0.3s ease;
+  color: #eee; /* светлый цвет текста */
+}
+
+/* Если хотя бы одна задача провалена – остальные становятся тусклее */
+.task-list.has-failed .task:not(.failed) {
+  opacity: 0.6;
+}
+
+/* Выделение проваленной задачи */
+.task.failed {
+  border: 1px solid #e53935;
+  box-shadow: 0 0 5px rgba(229, 57, 53, 0.5);
+}
+
+/* Точка таймлайна – увеличена до 24px, всегда поверх линии */
+.task-dot {
+  position: absolute;
+  /* Располагаем так, чтобы центр точки совпадал с линией (контейнер имеет padding-left:60px, линия на 30px) */
+  left: -42px; /* 30 - (24/2) = 18, смещаем относительно контейнера с padding-left */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ffb300; /* pending – оттенок янтарного */
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease;
+}
+
+/* Подпись состояния над точкой */
+.dot-state-label {
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  background: #2b2b2b;
+  padding: 2px 4px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  white-space: nowrap;
+  color: #eee;
+}
+
+/* Стили для деталей задачи */
+.task-details {
+  transform-origin: left center;
+  transition: transform 0.3s ease;
+}
+
+/* При состоянии "in-progress" масштабируем только блок с деталями */
+.task.in-progress > .task-details {
+  transform: scale(1.05);
+}
+
+/* Контейнер названия задачи */
+.task-title-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+/* Поле ввода названия задачи */
+.task-title-input {
+  font-size: 16px;
+  padding: 4px 8px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: #424242;
+  color: #eee;
+  transition: border-color 0.3s ease;
+}
+
+.task-title-input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+/* Кнопка сохранения названия */
+.task-save-title {
+  margin-left: 5px;
+  padding: 4px 8px;
+  font-size: 14px;
+  border: 1px solid #007bff;
+  border-radius: 4px;
+  background: #007bff;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.task-save-title:hover {
+  background: #0056b3;
+}
+
+/* Статичный заголовок задачи */
+.task-title-static {
+  font-size: 16px;
+  font-weight: 600;
+  color: #eee;
+}
+
+/* Панель действий (select и кнопка удаления) */
+.task-actions select,
+.task-actions button {
+  margin-left: 5px;
+  padding: 5px 8px;
+  font-size: 14px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: #424242;
+  color: #eee;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.task-actions select:focus,
+.task-actions button:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.task-actions button:hover {
+  background: #555;
+}
+
+/* Стили для различных состояний задачи – изменяем цвет точки */
+.task.pending .task-dot {
+  background: #ffb300;
+}
+.task.in-progress .task-dot {
+  background: #9e9e9e;
+}
+.task.completed .task-dot {
+  background: #43a047;
+}
+.task.failed .task-dot {
+  background: #e53935;
+}
+.task.cancelled .task-dot {
+  background: #757575;
+}
+
+/* Не забудьте подключить шрифт Montserrat, например, добавив в HTML:
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+*/
+
+/* Контейнер всего блока Gemini */
+.gemini-container {
+  background-color: #2c2c2c;
+  border: 1px solid #444;
+  border-radius: 8px; /* Более мягкие скругления */
+  padding: 15px;
+  margin-top: 15px;
+  font-family: 'Montserrat', sans-serif;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+/* Блок с ответом от Gemini (ещё более тёмный) */
+.gemini-answer {
+  background-color: #1e1e1e;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  color: #f0f0f0;
+  font-size: 14px;
+  line-height: 1.5;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Блок для до-запроса */
+.gemini-followup {
+  border-top: 1px solid #444;
+  padding-top: 10px;
+  transition: all 0.3s ease;
+}
+
+/* Текстовое поле для до-запроса */
+.gemini-input {
+  width: 100%;
+  height: 60px;
+  box-sizing: border-box;
+  font-size: 14px;
+  padding: 8px;
+  margin-bottom: 5px;
+  border: 1px solid #555;
+  border-radius: 8px;
+  background-color: #333;
+  color: #f0f0f0;
+  resize: vertical;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+/* Кнопка отправки */
+.gemini-send {
+  padding: 8px 15px;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  background-color: #555;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Эффект при наведении на кнопку */
+.gemini-send:hover {
+  background-color: #666;
+}
+
+/* Стили для сообщения ожидания */
+.gemini-waiting {
+  font-style: italic;
+  color: #bbb;
+  position: relative;
+}
+
+/* Анимация мигания троеточия */
+@keyframes blink {
+  0%   { opacity: 0; }
+  50%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+.gemini-waiting::after {
+  content: '...';
+  animation: blink 1s infinite;
+}
+
+/* Стили для сообщений об ошибках */
+.gemini-error {
+  color: #ff6b6b;
+  font-weight: bold;
+}
+
+/* Оверлей для модального окна */
+#storage-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+}
+
+/* Модальное окно */
+#storage-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #2c2c2c;
+    color: #f0f0f0;
+    padding: 20px;
+    z-index: 1001;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+/* Заголовок модального окна */
+#storage-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #555;
+    margin-bottom: 10px;
+}
+
+#storage-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #f0f0f0;
+}
+
+#storage-modal-close {
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #f0f0f0;
+}
+
+/* Тело модального окна */
+#storage-modal-body {
+    max-height: 400px;
+    overflow-y: auto;
+    background: #2c2c2c;
+}
+
+/* Таблица файлов */
+#storage-file-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #f0f0f0;
+}
+
+#storage-file-table th, 
+#storage-file-table td {
+    border: 1px solid #555;
+    padding: 8px;
+    text-align: left;
+}
+
+#storage-file-table th {
+    background-color: #3c3c3c;
+}
+
+/* Блок массовых действий */
+#storage-bulk-actions {
+    margin-top: 10px;
+    text-align: right;
+}
+
+#storage-bulk-actions button,
+#storage-modal button {
+    background-color: #444;
+    color: #f0f0f0;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+#storage-bulk-actions button:hover,
+#storage-modal button:hover {
+    background-color: #555;
+}
+
+/* ===== Медиа-запросы для смартфонов ===== */
+@media only screen and (max-width: 600px) {
+    /* Уменьшаем размеры модального окна */
+    #storage-modal {
+        width: 95%;
+        padding: 15px;
+    }
+    /* Корректируем шрифт заголовка */
+    #storage-modal-header h3 {
+        font-size: 16px;
+    }
+    /* Уменьшаем отступы и размер шрифта в таблице */
+    #storage-file-table th,
+    #storage-file-table td {
+        padding: 6px;
+        font-size: 14px;
+    }
+    /* Корректируем размеры кнопок */
+    #storage-bulk-actions button,
+    #storage-modal button {
+        padding: 4px 8px;
+        font-size: 14px;
+    }
+}
+
+/* Темная тема для модального окна */
+#accessModal .modal-content {
+  background-color: #2c2c2c; /* темный фон */
+  color: #f1f1f1; /* светлый текст */
+  border: none;
+}
+
+#accessModal .modal-header,
+#accessModal .modal-footer {
+  background-color: #1f1f1f;
+  border: none;
+}
+
+#accessModal .modal-title {
+  color: #ffffff;
+}
+
+#accessModal .modal-body {
+  background-color: #2c2c2c;
+  color: #ddd;
+}
+
+/* Стили для кнопки закрытия */
+#accessModal .close {
+  color: #fff;
+  opacity: 0.8;
+}
+#accessModal .close:hover {
+  opacity: 1;
+}
+
+/* Стили для кнопок внутри модального окна */
+#accessModal .btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+#accessModal .btn-primary:hover {
+  background-color: #0069d9;
+  border-color: #0062cc;
+}
+
+#accessModal .btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+#accessModal .btn-secondary:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+}
+
+#accessModal .btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+#accessModal .btn-danger:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+}
+
+/* Основной контейнер UI трекера */
+.tracker-ui {
+  border: 1px solid #444;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 4px;
+  background: #2e2e2e;
+  color: #fff;
+}
+
+/* Поле поиска трекера */
+.tracker-ui .tracker-search {
+  width: 80%;
+  padding: 4px 8px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  font-size: 14px;
+  background: #3a3a3a;
+  color: #fff;
+  transition: border-color 0.3s ease;
+}
+
+.tracker-ui .tracker-search:focus {
+  outline: none;
+  border-color: #66afe9;
+}
+
+/* Контейнер для отображения результатов поиска */
+.tracker-ui .tracker-results {
+  margin-top: 5px;
+  max-height: 150px;
+  overflow-y: auto;
+  border-top: 1px solid #444;
+  padding-top: 5px;
+}
+
+/* Элементы результата поиска (пользователи) */
+.tracker-ui .tracker-result-item {
+  display: inline-block;
+  padding: 4px 8px;
+  margin: 2px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: #444;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.tracker-ui .tracker-result-item:hover {
+  background: #555;
+}
+
+/* Контейнер для выбранных трекеров */
+.tracker-ui .selected-trackers {
+  margin-top: 5px;
+}
+
+/* Элемент выбранного трекера (отображается жирным) */
+/* Заменён фон с серого (#555) на тёмно-синий (#005f99) */
+.tracker-ui .tracker-selected-item {
+  display: inline-block;
+  margin: 2px;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 14px;
+  font-weight: bold;
+  background: #005f99;  /* Тёмно-синий фон */
+  color: #fff;
+  cursor: pointer;
+}
+/* Кнопки сохранения и отмены в UI трекера */
+.tracker-ui button.tracker-save,
+.tracker-ui button.tracker-cancel {
+  margin-top: 5px;
+  padding: 4px 8px;
+  font-size: 14px;
+  border: 1px solid #007bff;
+  border-radius: 4px;
+  background: #007bff;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-right: 5px;
+}
+
+.tracker-ui button.tracker-cancel {
+  border: 1px solid #6c757d;
+  background: #6c757d;
+}
+
+.tracker-ui button.tracker-save:hover {
+  background: #0056b3;
+}
+
+.tracker-ui button.tracker-cancel:hover {
+  background: #5a6268;
+}
+
+/* Кнопка "Добавить трекер" для задачи */
+.task-add-tracker {
+  margin-left: 5px;
+  padding: 4px 8px;
+  font-size: 14px;
+  border: 1px solid #28a745;
+  border-radius: 4px;
+  background: #28a745;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.3s ease, border 0.3s ease;
+}
+
+.task-add-tracker:hover {
+  background: #218838;
+  border-color: #1e7e34;
+}
+
+/* Стиль контейнера модального окна для темной темы */
+.unique-tele-message-container {
+  background: #333;
+  color: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  max-width: 500px;
+  width: 100%;
+}
+
+/* Стиль для заголовка */
+.unique-tele-message-header {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: #fff;
+}
+
+/* Стиль для формы */
+.unique-tele-message-form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Стиль для групп элементов формы */
+.form-group {
+  margin-bottom: 15px;
+}
+
+/* Стиль для полей ввода и текстовых областей */
+.unique-tele-message-textarea,
+.unique-tele-recipient-search {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #444;
+  background-color: #555;
+  color: #fff;
+  width: 100%;
+}
+
+/* Стиль для контейнера результатов поиска */
+.unique-tele-recipient-results {
+  margin-top: 10px;
+  background-color: #444;
+  border: 1px solid #666;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Стиль для кнопок */
+.unique-tele-messages-button,
+.unique-tele-close-button {
+  padding: 10px 15px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+/* Кнопки возвращены к исходным цветам */
+.unique-tele-messages-button {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.unique-tele-close-button {
+  background-color: #6c757d;
+  color: #fff;
+  border: 1px solid #666;
+}
+
+/* Стиль для добавленных получателей */
+.unique-tele-selected-recipients {
+  margin-top: 10px;
+}
+
+/* Стиль для тегов получателей */
+.unique-tele-selected-recipients span {
+  display: inline-block;
+  padding: 5px 10px;
+  margin: 5px;
+  background-color: #666;
+  border-radius: 15px;
+  cursor: pointer;
+  color: #fff;
+}
+
+  /* Общие стили контейнера */
+.wiki-container {
+    border: 1px solid var(--border-color);
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+/* Поле ввода */
+.wiki-search {
+    width: calc(100% - 90px);
+    padding: 5px;
+    margin-right: 5px;
+    background: var(--input-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+}
+
+/* Кнопка */
+.wiki-search-btn {
+    padding: 5px 10px;
+    background: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.wiki-search-btn:hover {
+    background: var(--button-hover);
+}
+
+/* Результат поиска */
+.wiki-result {
+    margin-top: 10px;
+}
+
+/* Ссылка */
+.wiki-link {
+    display: block;
+    margin-top: 5px;
+    color: var(--link-color);
+}
+
+.wiki-title {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* Ошибки */
+.error-msg {
+    color: var(--error-color);
+}
+
+/* Тёмная тема */
+:root {
+    --bg-color: #1e1e1e; /* Цвет фона */
+    --text-color: #e0e0e0; /* Цвет текста */
+    --border-color: #444; /* Цвет границ */
+    --input-bg: #2a2a2a; /* Цвет фона поля ввода */
+    --button-bg: #0056b3; /* Цвет фона кнопки */
+    --button-hover: #003f80; /* Цвет кнопки при наведении */
+    --button-text: white; /* Цвет текста на кнопке */
+    --link-color: #4da3ff; /* Цвет ссылок */
+    --error-color: #ff6b6b; /* Цвет ошибок */
+}
+
+
+a, .anchor-link {
+  color: #4caf50;
+  text-decoration: none;
+}
+
+a:hover, .anchor-link:hover {
+  color: #81c784;
+  text-decoration: underline;
+}
+
+/* Стили для модального окна */
+.modal-content {
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  color: #e0e0e0;
+  z-index: 1040; /* Установим более низкий z-index для модального окна */
+}
+
+.modal-header {
+  background-color: #333;
+  border-bottom: 1px solid #444;
+}
+
+.modal-title {
+  color: #fff;
+}
+
+#anchor-list-modal li {
+  list-style-type: none;
+  margin-bottom: 8px;
+}
+
+#anchor-list-modal li a {
+  color: #4caf50;
+  font-size: 16px;
+  display: inline-block;
+  padding: 4px 8px;
+  text-decoration: none;
+}
+
+#anchor-list-modal li button.delete-anchor-btn {
+  margin-left: 10px;
+  padding: 4px 8px;
+  font-size: 12px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#anchor-list-modal li button.delete-anchor-btn:hover {
+  background-color: #d32f2f;
+}
+
+
+.toast-notification.show {
+  opacity: 1;
+}
+
+/* Стили для якорей */
+span.anchor-text {
+  color: #4caf50;
+  cursor: pointer;
+  border-bottom: 1px dashed #4caf50;
+}
+
+span.anchor-text:hover {
+  color: #81c784;
+  text-decoration: underline;
+}
+
+/* Выделение якоря */
+span.anchor-text:focus {
+  background-color: rgba(76, 175, 80, 0.2);
+  border-radius: 2px;
+}
+
+/* Плавные переходы для scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Кнопки */
+.btn-light {
+  background-color: #2c2c2c;
+  color: #e0e0e0;
+  border: 1px solid #444;
+}
+
+.btn-light:hover {
+  background-color: #444;
+  color: #ffffff;
+}
+
+.btn-close {
+  color: #e0e0e0;
+  border: none;
+  background: none;
+}
+
+.btn-close:hover {
+  color: #ffffff;
+}
+
+/* Стили для центрального скроллинга */
+#anchor-modal .modal-body {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+#anchor-modal .modal-dialog {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Контекстное меню Gemini для тёмной темы */
+.gemini-context-menu {
+  display: none;
+  position: absolute;
+  background-color: #2e2e2e;
+  border: 1px solid #444;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+  padding: 10px;
+  z-index: 9999;
+  min-width: 240px;
+  color: #fff;
+}
+
+/* Кнопки в контекстном меню */
+.gemini-context-menu button {
+  display: block;
+  width: 100%;
+  margin: 4px 0;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.gemini-context-menu button:hover {
+  background-color: #0056b3;
+}
+
+/* Список ассистентов */
+.gemini-context-assistants-list {
+  margin-top: 10px;
+  border-top: 1px solid #555;
+  padding-top: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Элемент ассистента */
+.gemini-context-assistant-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.gemini-context-assistant-item:last-child {
+  border-bottom: none;
+}
+
+/* Имя ассистента */
+.gemini-assistant-name {
+  flex: 1;
+  margin-right: 8px;
+  font-weight: 500;
+  color: #ddd;
+  cursor: pointer;
+}
+
+/* Кнопки редактирования и удаления */
+.gemini-assistant-edit,
+.gemini-assistant-delete {
+  background-color: #007bff;
+  border: none;
+  padding: 2px 6px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #fff;
+  border-radius: 4px;
+  transition: background-color 0.25s ease;
+}
+
+.gemini-assistant-edit:hover,
+.gemini-assistant-delete:hover {
+  background-color: #0056b3;
+  color: #fff;
+}

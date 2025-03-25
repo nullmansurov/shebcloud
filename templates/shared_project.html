@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Загрузка проекта...</title> <!-- Обновится динамически -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/js/icon.png">
+
+   <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Poppins:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="/files/main/bootstrap.min.css">
+  <!-- jQuery UI CSS -->
+  <link rel="stylesheet" href="/files/main/jquery-ui.css">
+  <!-- Внешний файл стилей -->
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/js/audio-player.css">
+  <link rel="stylesheet" href="/js/mobile_styles.css">
+  <link rel="stylesheet" href="js/open_file.css">
+  <link rel="stylesheet" href="/js/task.css">
+  <link rel="stylesheet" href="/js/gemini.css">
+  <link rel="stylesheet" href="/js/storage.css">
+  <link rel="stylesheet" href="/files/notify/styles.css">
+  <link rel="stylesheet" href="/files/wiki/styles.css">
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Шапка с кнопкой смены темы -->
+  <div id="header">
+    <h4 id="main-header">Загрузка проекта...</h4> <!-- Обновится динамически -->
+    <button id="toggle-theme" class="btn btn-light">
+      <img src="/js/theme.png" alt="Сменить тему" class="toolbar-icon">
+    </button>
+  </div>
+
+  <!-- Добавлены отступы -->
+  <br><br><br>
+
+  <!-- Контейнер для содержимого проекта -->
+  <div class="container mt-3">
+    <div class="project-content">
+      {{ project_content | safe }}
+    </div>
+  </div>
+
+  <!-- Подключаем jQuery и jQuery UI -->
+  <script src="/files/main/jquery-3.5.1.min.js"></script>
+  <script src="/files/main/jquery-ui.min.js"></script>
+
+  <!-- Подключение Bootstrap JS (после jQuery) -->
+  <script src="/files/main/bootstrap.bundle.min.js"></script>
+  
+  <!-- Подключение наших JS файлов -->
+  <script src="/js/projects.js"></script>
+  <script src="/js/upload.js"></script>
+  <script src="/js/camera.js"></script>
+  <script src="/js/toolbar.js"></script>
+  <script src="/js/image-context.js"></script>
+  <script src="/js/dark_theme.js"></script>
+  <script src="/js/mobile_scripts.js"></script>
+  <script src="/js/audio-player.js"></script>
+  <script src="/js/playerjs.js"></script>
+  <script src="/js/video.js"></script>
+  <script src="/js/open_file.js"></script>
+  <script src="/js/task.js"></script>
+  <script src="/js/gemini.js"></script>
+  <script src="/js/storage.js"></script>
+  <script src="/files/acess/acess.js"></script>
+  <script src="/files/notify/notify.js"></script>
+  <script src="/files/main/fuse.min.js"></script>
+  <script src="/files/wiki/script.js"></script>
+  <script src="/files/iakor/script.js"></script>
+
+  <!-- Скрипт для получения имени проекта -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const shareId = window.location.pathname.split("/").pop(); // Получаем share_id из URL
+      fetch(`/get_project_name/${shareId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            document.title = `${data.project_name} - Проект`;
+            document.getElementById("main-header").innerText = `${data.project_name} - Проект`;
+          } else {
+            console.error("Ошибка:", data.error);
+          }
+        })
+        .catch(error => console.error("Ошибка при загрузке имени проекта:", error));
+    });
+  </script>
+
+</body>
+</html>

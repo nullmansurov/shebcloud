@@ -1,0 +1,174 @@
+/* Не забудьте подключить шрифт Montserrat, например, добавив в HTML:
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+*/
+
+/* Контейнер всего блока Gemini */
+.gemini-container {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px; /* Мягкие скругления */
+  padding: 15px;
+  margin-top: 15px;
+  font-family: 'Montserrat', sans-serif;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* Блок с ответом от Gemini */
+.gemini-answer {
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  color: #333;
+  font-size: 14px;
+  line-height: 1.5;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Блок для до-запроса */
+.gemini-followup {
+  border-top: 1px solid #ddd;
+  padding-top: 10px;
+  transition: all 0.3s ease;
+}
+
+/* Текстовое поле для до-запроса */
+.gemini-input {
+  width: 100%;
+  height: 60px;
+  box-sizing: border-box;
+  font-size: 14px;
+  padding: 8px;
+  margin-bottom: 5px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  color: #333;
+  resize: vertical;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+/* Кнопка отправки (нередактируемая) */
+.gemini-send {
+  padding: 8px 15px;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  background-color: #007BFF;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Эффект при наведении на кнопку */
+.gemini-send:hover {
+  background-color: #0056b3;
+}
+
+/* Стили для сообщения ожидания */
+.gemini-waiting {
+  font-style: italic;
+  color: #777;
+  position: relative;
+}
+
+/* Анимация мигания троеточия */
+@keyframes blink {
+  0%   { opacity: 0; }
+  50%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+.gemini-waiting::after {
+  content: '...';
+  animation: blink 1s infinite;
+}
+
+/* Стили для сообщений об ошибках */
+.gemini-error {
+  color: #ff6b6b;
+  font-weight: bold;
+}
+
+/* Контекстное меню Gemini */
+.gemini-context-menu {
+  display: none;
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 10px;
+  z-index: 9999;
+  min-width: 240px;
+}
+
+/* Кнопки в контекстном меню */
+.gemini-context-menu button {
+  display: block;
+  width: 100%;
+  margin: 4px 0;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.gemini-context-menu button:hover {
+  background-color: #0056b3;
+}
+
+/* Список ассистентов */
+.gemini-context-assistants-list {
+  margin-top: 10px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+/* Элемент ассистента */
+.gemini-context-assistant-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #f7f7f7;
+}
+
+.gemini-context-assistant-item:last-child {
+  border-bottom: none;
+}
+
+/* Имя ассистента */
+.gemini-assistant-name {
+  flex: 1;
+  margin-right: 8px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+}
+
+/* Кнопки редактирования и удаления */
+.gemini-assistant-edit,
+.gemini-assistant-delete {
+  background-color: #007bff;
+  border: none;
+  padding: 2px 6px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #fff;
+  border-radius: 4px;
+  transition: background-color 0.25s ease;
+}
+
+.gemini-assistant-edit:hover,
+.gemini-assistant-delete:hover {
+  background-color: #0056b3;
+  color: #fff;
+}

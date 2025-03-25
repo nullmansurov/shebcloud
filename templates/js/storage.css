@@ -1,0 +1,81 @@
+/* Оверлей для модального окна */
+#storage-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+}
+
+/* Само модальное окно */
+#storage-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 20px;
+    z-index: 1001;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+/* Заголовок модального окна */
+#storage-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 10px;
+}
+
+#storage-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+}
+
+#storage-modal-close {
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Тело модального окна */
+#storage-modal-body {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Таблица файлов */
+#storage-file-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#storage-file-table th, 
+#storage-file-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+#storage-file-table th {
+    background-color: #f2f2f2;
+}
+
+/* Блок массовых действий */
+#storage-bulk-actions {
+    margin-top: 10px;
+    text-align: right;
+}
+
+#storage-bulk-actions button {
+    margin-left: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+}

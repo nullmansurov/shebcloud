@@ -1,0 +1,53 @@
+.wiki-container {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    background: #f9f9f9;
+    max-width: 70%;
+}
+
+@media (max-width: 768px) { 
+
+  .wiki-container {
+    max-width: 100%;
+}
+
+}
+.wiki-search {
+    width: calc(100% - 90px);
+    padding: 5px;
+    margin-right: 5px;
+}
+
+.wiki-search-btn {
+    padding: 5px 10px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.wiki-search-btn:hover {
+    background: #0056b3;
+}
+
+.wiki-result {
+    margin-top: 10px;
+}
+
+.wiki-link {
+    display: block;
+    margin-top: 5px;
+    color: #007bff;
+}
+
+.wiki-title {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.error-msg {
+    color: red;
+}
